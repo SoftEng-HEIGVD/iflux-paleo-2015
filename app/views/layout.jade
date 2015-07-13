@@ -1,0 +1,35 @@
+doctype html
+html(lang='en')
+	head
+		base(href=contextRoot + '/')
+		meta(charset='UTF-8')
+		meta(name='viewport', content='width=device-width')
+		title= title
+		block css
+			link(rel='stylesheet', href=contextRoot + '/css/style.css')
+			link(rel='stylesheet', href=contextRoot + '/components/font-awesome/css/font-awesome.css')
+			link(rel='stylesheet', href=contextRoot + '/components/bootstrap/dist/css/bootstrap.css')
+			link(rel='stylesheet', href=contextRoot + '/components/bootstrap/dist/css/bootstrap-theme.css')
+		block js
+			if ENV_DEVELOPMENT
+				script(src='http://localhost:35729/livereload.js')
+			script(src=contextRoot + '/components/underscore/underscore.js')
+			script(src=contextRoot + '/components/jquery/dist/jquery.js')
+			script(src=contextRoot + '/components/bootstrap/dist/js/bootstrap.js')
+			script(src=contextRoot + '/components/angular/angular.js')
+			script(src=contextRoot + '/components/ui-router/release/angular-ui-router.js')
+			script(src=contextRoot + '/js/app.js')
+
+			script.
+				app.constant('CONTEXT_ROOT', '#{contextRoot}');
+	body(ng-app="demoapp")
+		nav.navbar.navbar-default.navbar-static-top.navbar-inverse
+			.container
+				.navbar-header
+					a.navbar-brand(ui-sref="main") iFLUX Paleo Parking Trends 2015
+				//ul.nav.navbar-nav
+				//	li
+				//		a(ui-sref='archi') Demo Architecture
+
+		div(ui-view)
+

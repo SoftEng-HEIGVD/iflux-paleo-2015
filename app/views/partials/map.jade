@@ -1,0 +1,4 @@
+.map-box(ng-controller="MapController" ng-init="init()")
+	.map-title {{ map.name }}
+	.map-content
+		leaflet(class="map" id="map" ng-show="map" markers="markers" legend="legend" defaults="defaults" center="center")
