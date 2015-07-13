@@ -1,13 +1,13 @@
 var
 	express = require('express'),
   config = require('./config/config'),
-	viewConfigService = require('./app/services/viewConfigService');
+	AnalyticsProvider = require('./app/services/analytics').AnalyticsProvider;
 
 var app = express();
 
 require('./config/express')(app, config);
 
-viewConfigService.load();
+app.analyticsProvider = new AnalyticsProvider(config);
 
 app.listen(config.port);
 

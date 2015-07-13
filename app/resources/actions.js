@@ -3,9 +3,11 @@ var
 	express = require('express'),
 	router = express.Router(),
 	config = require('../../config/config'),
-	actionService = require('../services/actionService');
+	Measure = require('../services/analytics').Measure;;
 
 module.exports = function (app) {
+	router.app = app;
+
   app.use('/actions', router);
 };
 
@@ -18,9 +20,26 @@ router.route('/')
 
 		_.each(actions, function(action) {
 			console.log('Consider action: %s', action.type);
-			if (action.type === config.app.actionTypes.carIn || action.type === config.app.actionTypes.carOut) {
-				console.log('Process action: %s', action.type);
-				actionService.store(action);
+			var value = action.properties.value;
+
+			var timestamp = action.properties.timestamp;
+			if (timestamp === undefined) {
+				timestamp = new Date();
+			}
+
+			if (value === undefined) {
+				value = 1;
+			}
+
+			if (action.type === config.app.actionTypes.carIn) {
+				var measure = new Measure('ch.heig.iflux.paleo2015.' + action.properties.location + '.carsIn', value, timestamp);
+
+				router.app.analyticsProvider.reportMeasure(measure);
+			}
+			else if (action.type === config.app.actionTypes.carOut) {
+				var measure = new Measure('ch.heig.iflux.paleo2015.' + action.properties.location + '.carsOut', value, timestamp);
+
+				router.app.analyticsProvider.reportMeasure(measure);
 			}
 		});
 

@@ -5,9 +5,9 @@ module.exports = function (app) {
   app.use('/', router);
 };
 
-router.route('/partials/:page')
+router.route('/partials/*')
 	.get(function (req, res, next) {
-		res.render('partials/' + req.params.page);
+		res.render('partials/' + req.url.replace('/partials/', ''));
 	});
 
 router.route('/*')

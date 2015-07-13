@@ -1,0 +1,8 @@
+.container
+	.graph
+	div
+		button.btn(ng-click='updateInterval(60)') Last hour
+		button.btn(ng-click='updateInterval(60*6)') Last 6 hours
+		button.btn(ng-click='updateInterval(60*12)') Last 12 hours
+		button.btn(ng-click='updateInterval(60*24)') Last 24 hours
+		//button.btn(ng-click='updateInterval(-1)') All the time

@@ -2,19 +2,24 @@ var
 	_ = require('underscore'),
 	express = require('express'),
 	router = express.Router(),
-	actionService = require('../services/actionService'),
-	viewConfigService = require('../services/viewConfigService');
+	viewConfigService = require('../services/dataService');
 
 module.exports = function (app) {
   app.use('/data', router);
 };
 
-router.route('/maps')
+router.route('/evolution')
 	.get(function(req, res, next) {
-		res.status(200).json(viewConfigService.getMaps()).end();
+		var minutes = req.query.minutes ? req.query.minutes : 90;
+
+		viewConfigService
+			.getEvolution(minutes)
+			.then(function(result) {
+				return res.status(200).json(result).end();
+			})
 	});
 
-router.route('/maps/:mapId')
-	.get(function (req, res) {
-		res.status(200).json(actionService.getMap(req.params.mapId)).end();
-	});
+//router.route('/maps/:mapId')
+//	.get(function (req, res) {
+//		res.status(200).json(actionService.getMap(req.params.mapId)).end();
+//	});
