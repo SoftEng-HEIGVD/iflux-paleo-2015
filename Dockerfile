@@ -4,7 +4,7 @@ MAINTAINER Laurent Prevost <laurent.prevost@heig-vd.ch>
 # For later use when bower will be reintroduced
 RUN npm install -g bower
 
-ADD . /nodejs/paelo
+ADD . /nodejs/paleo
 
 # See: http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/ (similar approach for bower)
 ADD bower.json /tmp/bower.json
