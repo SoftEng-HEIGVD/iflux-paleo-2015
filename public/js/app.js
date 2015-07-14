@@ -61,10 +61,12 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 				var cars = {
 					carsIn: [],
 					carsOut: [],
+					carsMean: [],
 					carsTotal: []
 				};
 
 				var maxYValue = 0;
+				var maxY2Value = 0;
 
 				for (var i = 0; i <= Math.floor($scope.interval / data.granularity); i++) {
 					cars.carsIn[i] = {
@@ -85,14 +87,32 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 						maxYValue = Math.abs(cars.carsOut[i].y);
 					}
 
-					cars.carsTotal[i] = {
+					cars.carsMean[i] = {
 						x: i,
 						y: cars.carsIn[i].y + cars.carsOut[i].y
 					};
+
+					cars.carsTotal[i] = {
+						x: i,
+						y: cars.carsIn[i].y + cars.carsOut[i].y + (cars.carsTotal[i-1] ? cars.carsTotal[i-1].y : 0)
+					};
+
+					if (maxY2Value < Math.abs(cars.carsTotal[i].y)) {
+						maxY2Value = Math.abs(cars.carsTotal[i].y);
+					}
 				}
+
+				var ratio = maxY2Value / maxYValue;
+				_.each(cars.carsTotal, function(value, idx) {
+					cars.carsTotal[idx].y = value.y / ratio;
+				});
+
+				console.log(cars.carsTotal);
+				console.log(maxY2Value);
 
 				$scope.granularity = data.granularity;
 				$scope.maxYValue = maxYValue;
+				$scope.maxY2Value = maxY2Value;
 				$scope.cars = cars;
 				$scope.ticks = ticks[$scope.interval];
 				$scope.xTitle = xTitles[$scope.interval];
@@ -106,6 +126,15 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 		fn();
 	};
 
+	$scope.getClass = function(minutes) {
+		if (minutes == $scope.interval) {
+			return 'btn-primary';
+		}
+		else {
+			return '';
+		}
+	};
+
 	$interval(fn, 15000);
 
 	fn();
@@ -113,8 +142,8 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 
 
 app.directive('paleoAreaGraph', [ function() {
-	var margin = {top: 20, right: 60, bottom: 60, left: 60},
-		width = 960 - margin.left - margin.right,
+	var margin = {top: 20, right: 30, bottom: 60, left: 30},
+		width = 900 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
 
 	return {
@@ -126,7 +155,7 @@ app.directive('paleoAreaGraph', [ function() {
 		},
 		controller: 'GraphController',
 		link: function ($scope, element, attrs) {
-			var x, y, svg, carsInArea, carsOutArea, carsTotalPath;
+			var x, y, y2, svg, carsInArea, carsOutArea, carsTotalPath, carsMeanPath;
 
 			var area = d3.svg
 				.area()
@@ -167,6 +196,9 @@ app.directive('paleoAreaGraph', [ function() {
 
 				y = d3.scale.linear()
 					.range([height, 0]);
+
+				y2 = d3.scale.linear()
+					.range([height, 0]);
 			}
 
 			function redrawAxis() {
@@ -175,10 +207,6 @@ app.directive('paleoAreaGraph', [ function() {
 					memo.push(val * base);
 					return memo;
 				}, []);
-
-				//console.log(ticks.reverse())
-
-				//ticks = ticks.reverse();
 
 				var xAxis = d3.svg.axis()
 					.scale(x)
@@ -221,7 +249,7 @@ app.directive('paleoAreaGraph', [ function() {
 					.orient("left");
 
 				var yAxis2 = d3.svg.axis()
-					.scale(y)
+					.scale(y2)
 					.tickFormat(d3.format("d"))
 					.orient("right");
 
@@ -240,26 +268,26 @@ app.directive('paleoAreaGraph', [ function() {
 					.append("g")
 					.attr("class", "y axis")
 					.call(yAxis)
-					.append("text")
-					.attr("transform", "rotate(-90)")
-					.attr("y", -35)
-					.attr("x", height / -2)
-					.style("text-anchor", "middle")
-					.attr("class", "axisText")
-					.text("Nb cars in/out. (areas)");
+					//.append("text")
+					//.attr("transform", "rotate(-90)")
+					//.attr("y", -35)
+					//.attr("x", height / -2)
+					//.style("text-anchor", "middle")
+					//.attr("class", "axisText")
+					//.text("Nb cars in/out. (areas)");
 
 				svg
 					.append("g")
 					.attr("class", "y axis")
 					.attr("transform", "translate(" + width + ",0)")
 					.call(yAxis2)
-					.append("text")
-					.attr("transform", "rotate(-90)")
-					.attr("y", 50)
-					.attr("x", height / -2)
-					.style("text-anchor", "middle")
-					.attr("class", "axisText")
-					.text("Total nb cars. (line)");
+					//.append("text")
+					//.attr("transform", "rotate(-90)")
+					//.attr("y", 50)
+					//.attr("x", height / -2)
+					//.style("text-anchor", "middle")
+					//.attr("class", "axisText")
+					//.text("Total nb cars. (line)");
 			}
 
 			$scope.$watch('cars', function(cars) {
@@ -273,6 +301,7 @@ app.directive('paleoAreaGraph', [ function() {
 
 				x.domain([0, $scope.interval / $scope.granularity]);
 				y.domain([-$scope.maxYValue, $scope.maxYValue]);
+				y2.domain([-$scope.maxY2Value, $scope.maxY2Value]);
 
 				if (carsInArea) {
 					carsInArea.remove();
@@ -280,6 +309,10 @@ app.directive('paleoAreaGraph', [ function() {
 
 				if (carsOutArea) {
 					carsOutArea.remove();
+				}
+
+				if (carsMeanPath) {
+					carsMeanPath.remove();
 				}
 
 				if (carsTotalPath) {
@@ -296,9 +329,14 @@ app.directive('paleoAreaGraph', [ function() {
 					.attr("class", "area2")
 					.attr("d", area);
 
+				carsMeanPath = svg.append("path")
+					.datum(cars.carsMean)
+					.attr("class", "line2")
+					.attr("d", line);
+
 				carsTotalPath = svg.append("path")
 		      .datum(cars.carsTotal)
-		      .attr("class", "line")
+		      .attr("class", "line1")
 		      .attr("d", line);
 
 				if ($scope.interval != $scope.oldInterval) {

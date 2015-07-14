@@ -4,6 +4,9 @@
 h1, p
   padding 10px
 
+.center
+  text-align center
+
 .axis path,
 .axis line {
   fill: none;
@@ -23,8 +26,28 @@ h1, p
   fill: #b92a1e;
 }
 
-.line {
+.line1 {
   fill: none;
   stroke: #4a70e2;
   stroke-width: 1.5px;
 }
+
+.line2 {
+  fill: none;
+  stroke: #481315;
+  stroke-width: 1.5px;
+}
+
+.widget
+  display flex
+  flex-direction row
+
+  .w-left
+    flex 1
+
+  .w-right
+    margin-left 1em
+    flex 1
+
+    .btn
+      width 100%

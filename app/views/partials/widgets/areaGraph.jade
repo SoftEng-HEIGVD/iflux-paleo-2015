@@ -1,8 +1,15 @@
-.container
-	.graph
-	div
-		button.btn(ng-click='updateInterval(60)') Last hour
-		button.btn(ng-click='updateInterval(60*6)') Last 6 hours
-		button.btn(ng-click='updateInterval(60*12)') Last 12 hours
-		button.btn(ng-click='updateInterval(60*24)') Last 24 hours
-		//button.btn(ng-click='updateInterval(-1)') All the time
+.widget
+	.w-left
+		.graph
+	.w-right
+		div
+			h4.center Actions
+			button.btn.btn-block(ng-class='getClass(60)' ng-click='updateInterval(60)') Last hour
+			button.btn.btn-block(ng-class='getClass(360)' ng-click='updateInterval(360)') Last 6 hours
+			button.btn.btn-block(ng-class='getClass(720)' ng-click='updateInterval(720)') Last 12 hours
+			button.btn.btn-block(ng-class='getClass(1440)' ng-click='updateInterval(1440)') Last 24 hours
+		div
+			h4.center Legends
+			p Green and red areas shows entries and exits over the time.
+			p Blue line shows the total of cars in the parking. Negative total can mean the sensors has not detected exits. The right scale correspond to this line.
+			p Dark line shows the difference between entries and exits.
