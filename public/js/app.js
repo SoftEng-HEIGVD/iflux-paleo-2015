@@ -120,7 +120,7 @@ app.directive('paleoAreaGraph', [ function() {
 	return {
 		restrict: 'E',
     replace: true,
-    templateUrl: '/partials/widgets/areaGraph',
+    templateUrl: 'partials/widgets/areaGraph',
 		scope: {
 			cars: '='
 		},
