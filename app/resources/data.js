@@ -12,7 +12,7 @@ router.route('/evolution')
 	.get(function(req, res, next) {
 		var minutes = req.query.minutes ? req.query.minutes : 90;
 
-		viewConfigService
+		return viewConfigService
 			.getEvolution(minutes)
 			.then(function(result) {
 				return res.status(200).json(result).end();
