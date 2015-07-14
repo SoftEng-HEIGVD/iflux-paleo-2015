@@ -17,6 +17,9 @@ router.route('/evolution')
 			.then(function(result) {
 				return res.status(200).json(result).end();
 			})
+			.error(function(err) {
+				return res.status(500).send(err).end();
+			})
 	});
 
 //router.route('/maps/:mapId')
