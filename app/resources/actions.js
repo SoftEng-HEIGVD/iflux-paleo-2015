@@ -32,12 +32,12 @@ router.route('/')
 			}
 
 			if (action.type === config.app.actionTypes.carIn) {
-				var measure = new Measure('ch.heigvd.iflux.paleo2015.' + action.properties.location + '.carsIn', value, timestamp);
+				var measure = new Measure('ch.heigvd.iflux.paleo2015.entries', value, timestamp);
 
 				router.app.analyticsProvider.reportMeasure(measure);
 			}
 			else if (action.type === config.app.actionTypes.carOut) {
-				var measure = new Measure('ch.heigvd.iflux.paleo2015.' + action.properties.location + '.carsOut', value, timestamp);
+				var measure = new Measure('ch.heigvd.iflux.paleo2015.exits', value, timestamp);
 
 				router.app.analyticsProvider.reportMeasure(measure);
 			}
