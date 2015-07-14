@@ -118,7 +118,7 @@ module.exports = {
 					var nbSamples = memo.scale.max / memo.scale.granularity;
 
 					return analyticsProvider
-						.getMetrics('ch.heig.iflux.paleo2015.westEntry.carsIn', 'minutely', startDate)
+						.getMetrics('ch.heigvd.iflux.paleo2015.westEntry.carsIn', 'minutely', startDate)
 						.then(function (metrics) {
 							_.each(metrics, function (metric) {
 								var calcDate = moment(endDate).subtract(moment(metric.header.startDate));
@@ -153,7 +153,7 @@ module.exports = {
 					var nbSamples = memo.scale.max / memo.scale.granularity;
 
 					return analyticsProvider
-						.getMetrics('ch.heig.iflux.paleo2015.westEntry.carsOut', 'minutely', startDate)
+						.getMetrics('ch.heigvd.iflux.paleo2015.westEntry.carsOut', 'minutely', startDate)
 						.then(function (metrics) {
 							_.each(metrics, function (metric) {
 								var calcDate = moment(endDate).subtract(moment(metric.header.startDate));
