@@ -1,0 +1,37 @@
+.widget-container
+	h3 Trends per hour of day
+
+	.widget
+		.w-left-3
+			table.tiles
+				thead
+					tr
+						td
+						td.tile-head(ng-repeat='headerText in hours') {{ headerText }}h
+				tbody
+					tr(ng-repeat='tile in tiles')
+						td.tile-row-head {{ tile.day }}
+						td.tile(ng-repeat='value in tile.values track by $index' ng-class='getClass(value)' ng-mouseover='val = getValue(value)' ng-mouseleave='val = ""') {{ val }}
+
+		.w-right
+			div
+				h4.center Actions
+				button.btn.btn-block(ng-class='getActionClass("entries")' ng-click='update("entries")') Entries
+				button.btn.btn-block(ng-class='getActionClass("exits")' ng-click='update("exits")') Exits
+			div
+				h4.center Legends
+				.tiles-legend
+					ul
+						li.q1
+						li.q2
+						li.q3
+						li.q4
+						li.q5
+						li.q6
+						li.q7
+						li.q8
+						li.q9
+						li.q10
+						li.q11
+					p.more more cars
+					p.less less cars

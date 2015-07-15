@@ -193,5 +193,74 @@ module.exports = {
 					carsOut: memo.carsOut
 				};
 			});
+	},
+
+	getTiles: function(type) {
+		var days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+		var promise = Promise.resolve({});
+
+		if (config.app.randomData) {
+			promise = promise
+				.then(function(memo) {
+
+					var startDay = randomInt(0, 7);
+
+					var max = 0;
+
+					for (var i = 0; i < 7; i++) {
+						memo[i] = { day: days[(i + startDay) % 7], values: [] };
+
+						for (var j = 0; j < 24; j++) {
+							memo[i].values.push(randomInt(0, 10));
+
+							if (memo[i].values[j] > max) {
+								max = memo[i].values[j];
+							}
+						}
+					}
+
+					return { tiles: memo, min: 0, max: max };
+				})
+		}
+		else {
+			promise = promise
+				.then(function (memo) {
+					var endDate = moment();
+					var startDate = moment(endDate).subtract(7, 'days');
+
+					return analyticsProvider
+						.getMetrics('ch.heigvd.iflux.paleo2015.' + type, 'daily', startDate)
+						.then(function (metrics) {
+							var countDays = 0;
+							var max = 0;
+
+							_.each(metrics, function (metric) {
+								var date = moment(metric.header.startDate);
+								var dayNumber = date.day();
+								memo[countDays] = { day: days[dayNumber], values: [] };
+
+								for (var i = 0; i < 24; i++) {
+									if (metric.hourly && metric.hourly[i]) {
+										memo[countDays].values.push(metric.hourly[i].sum);
+
+										if (memo[countDays].values[i] > max) {
+											max = memo[countDays].values[i];
+										}
+									}
+									else {
+										memo[countDays].values.push(0);
+									}
+								}
+
+								countDays++;
+							});
+
+							return { tiles: memo, min: 0, max: max };
+						});
+				})
+		}
+
+		return promise;
 	}
 };

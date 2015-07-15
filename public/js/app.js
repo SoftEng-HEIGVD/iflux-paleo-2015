@@ -28,7 +28,15 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 				url: CONTEXT_ROOT + '/data/evolution?minutes=' + lastMinutes
 			})
 			.then(function (res) {
-				//maps = res.data;
+				return res.data;
+			});
+		},
+
+		getTiles: function (type) {
+			return $http({
+				url: CONTEXT_ROOT + '/data/tiles?type=' + type
+			})
+			.then(function (res) {
 				return res.data;
 			});
 		}
@@ -107,9 +115,6 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 					cars.carsTotal[idx].y = value.y / ratio;
 				});
 
-				console.log(cars.carsTotal);
-				console.log(maxY2Value);
-
 				$scope.granularity = data.granularity;
 				$scope.maxYValue = maxYValue;
 				$scope.maxY2Value = maxY2Value;
@@ -140,10 +145,9 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 	fn();
 }]);
 
-
 app.directive('paleoAreaGraph', [ function() {
 	var margin = {top: 20, right: 30, bottom: 60, left: 30},
-		width = 900 - margin.left - margin.right,
+		width = 850 - margin.left - margin.right,
 		height = 500 - margin.top - margin.bottom;
 
 	return {
@@ -185,8 +189,9 @@ app.directive('paleoAreaGraph', [ function() {
 
 				svg = el
 					.append("svg")
-					.attr("width", width + margin.left + margin.right)
-					.attr("height", height + margin.top + margin.bottom)
+					//.attr("width", width + margin.left + margin.right)
+					//.attr("height", height + margin.top + margin.bottom)
+					.attr('viewBox', "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
 					.append("g")
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -344,6 +349,84 @@ app.directive('paleoAreaGraph', [ function() {
 					$scope.oldInterval = $scope.interval;
 				}
 			});
+		}
+	};
+}]);
+
+app.controller('TilesController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory', function($scope, $stateParams, $interval, dataService) {
+	$scope.hours = _.range(24);
+
+	var fn = function() {
+		dataService
+			.getTiles($scope.type)
+			.then(function (data) {
+				$scope.tiles = data.tiles;
+
+				var step = (data.max - data.min) / 10;
+
+				$scope.steps = _.reduce(_.range(11), function (memo, i) {
+					memo.push({cl: 'q' + (i + 1), val: (i) * step});
+					return memo;
+				}, []);
+			});
+	};
+
+	$scope.type = 'entries';
+
+	$scope.update = function(type) {
+		$scope.type = type;
+		fn();
+	};
+
+	$scope.getClass = function(value) {
+		if (value != 0 && value == '') {
+			return '';
+		}
+		else if (value == 'n/a') {
+			return 'no-data';
+		}
+		else {
+			var step = _.find($scope.steps, function (step) {
+				return value <= step.val;
+			});
+
+			return step.cl;
+		}
+	};
+
+	$scope.getActionClass = function(type) {
+		if ($scope.type == type) {
+			return 'btn-primary';
+		}
+		else {
+			return '';
+		}
+	};
+
+	$scope.getValue = function(value) {
+		if (value != 0 && (value == '' || value == 'n/a')) {
+			return '';
+		}
+		else {
+			return value;
+		}
+	};
+
+	$interval(fn, 60000);
+
+	fn();
+}]);
+
+app.directive('paleoTiles', [ function() {
+	return {
+		restrict: 'E',
+    replace: true,
+    templateUrl: 'partials/widgets/tiles',
+		scope: {
+			cars: '='
+		},
+		controller: 'TilesController',
+		link: function ($scope, element, attrs) {
 		}
 	};
 }]);

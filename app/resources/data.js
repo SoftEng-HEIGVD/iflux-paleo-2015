@@ -22,7 +22,16 @@ router.route('/evolution')
 			})
 	});
 
-//router.route('/maps/:mapId')
-//	.get(function (req, res) {
-//		res.status(200).json(actionService.getMap(req.params.mapId)).end();
-//	});
+router.route('/tiles')
+	.get(function(req, res, next) {
+		var minutes = req.query.type ? req.query.type : 'entries';
+
+		return dataService
+			.getTiles(minutes)
+			.then(function(result) {
+				return res.status(200).json(result).end();
+			})
+			.error(function(err) {
+				return next(err);
+			})
+	});

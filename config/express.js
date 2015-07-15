@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var compress = require('compression');
 var methodOverride = require('method-override');
+var autoprefixer = require('autoprefixer-stylus');
 
 module.exports = function(app, config) {
   app.set('views', config.root + '/app/views');
@@ -58,11 +59,11 @@ module.exports = function(app, config) {
 	  debug: true,
 	  force: true,
     compile: function(str, path) { // optional, but recommended
-	    console.log('there');
       return stylus(str)
 	      .set('filename', path)
 	      .set('compress', true)
-	      .use(nib());
+	      .use(nib())
+	      .use(autoprefixer());
     }
   }));
 

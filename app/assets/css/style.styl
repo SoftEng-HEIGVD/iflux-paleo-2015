@@ -38,16 +38,160 @@ h1, p
   stroke-width: 1.5px;
 }
 
-.widget
+.widget-container
+  border 2px black solid
+  flex-direction column
+  border-radius 5px
   display flex
-  flex-direction row
+  padding 5px
+  margin 5px
 
-  .w-left
-    flex 1
+  h3
+    padding 5px 0 10px 0
+    text-align center
+    margin 0
+    border-bottom 1px solid gray
 
-  .w-right
-    margin-left 1em
-    flex 1
+  .widget
+    //border 2px black solid
+    flex-direction row
+    //border-radius 5px
+    display flex
+    //padding 5px
+    //margin 5px
+    margin-top 5px
 
-    .btn
-      width 100%
+    .w-left
+      flex 1
+
+    .w-left-2
+      flex 2
+
+    .w-left-3
+      flex 3
+
+    .w-right
+      margin-left 1em
+      max-width 250px
+      flex 1
+
+      .btn
+        width 100%
+
+.graph
+  height 0
+  padding-top 58.82% /* 500px/850px */
+  position relative
+
+  svg
+    position absolute
+    display block
+    height 100%
+    width 100%
+    left 0
+    top 0
+
+table.tiles
+  border-collapse separate
+  border-spacing 3px
+
+  td, th
+    vertical-align middle
+    border-radius 4px
+    text-align center
+    font-size .8em
+    padding 2px
+    height 34px
+    width 34px
+
+  td.tile
+    border 1px solid white
+    cursor pointer
+
+  td.tile:hover
+    border 1px solid black
+
+  td.tile-head
+    background-color #eae6d4
+
+  td.tile-row-head
+    background-color #eae6d4
+
+.tiles-legend
+  background #F3F3F3 none repeat scroll 0 0
+  border 1px solid #F0F0F0
+  border-radius 3px
+  line-height 11px
+  overflow hidden
+  padding 5px 7px
+  font-size 11px
+  margin auto
+  width 192px
+  color #777
+
+  ul
+    list-style-type none
+    padding 0
+
+    li
+      margin-right 1px
+      height 15px
+      width 15px
+      float left
+
+  p
+    padding 0
+    margin 2px 0 0
+
+  .more
+    float right
+
+  .less
+    float left
+
+.q1
+  background #5E4FA2
+
+.q2
+  background #3288BD
+
+.q3
+  background #66C2A5
+
+.q4
+  background #ABDDA4
+
+.q5
+  background #E6F598
+
+.q6
+  background #f6faaa
+
+.q7
+  background #FEE08B
+
+.q8
+  background #FDAE61
+
+.q9
+  background #F46D43
+
+.q10
+  background #D53E4F
+
+.q11
+  background #9E0142
+
+.no-data
+  background-color #d2d2d2
+
+@media(max-width 1200px)
+  .graph
+    text-align center
+
+  .widget
+    flex-direction column !important
+
+    .w-right
+      max-width 100% !important
+      margin-left 0 !important
