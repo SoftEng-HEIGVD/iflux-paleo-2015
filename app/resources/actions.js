@@ -3,6 +3,7 @@ var
 	express = require('express'),
 	router = express.Router(),
 	config = require('../../config/config'),
+  dataService = require('../services/dataService'),
 	Measure = require('../services/analytics').Measure;;
 
 module.exports = function (app) {
@@ -43,6 +44,8 @@ router.route('/')
 				console.log('%s exits collected', value);
 				router.app.analyticsProvider.reportMeasure(measure);
 			}
+
+      dataService.collectAction(action);
 		});
 
 		res.status(204).send();

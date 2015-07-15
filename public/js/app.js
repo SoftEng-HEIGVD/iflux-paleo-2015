@@ -39,7 +39,16 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 			.then(function (res) {
 				return res.data;
 			});
-		}
+		},
+
+    getMovements: function (type) {
+      return $http({
+        url: CONTEXT_ROOT + '/data/movements'
+      })
+      .then(function (res) {
+        return res.data;
+      });
+    }
 	}
 }]);
 
@@ -422,10 +431,62 @@ app.directive('paleoTiles', [ function() {
 		restrict: 'E',
     replace: true,
     templateUrl: 'partials/widgets/tiles',
+		controller: 'TilesController'
+	};
+}]);
+
+app.controller('PulsorController', [ '$scope', '$timeout', '$interval', 'DataServiceFactory', function($scope, $timeout, $interval, dataService) {
+	$scope.movements = {
+    entries: 0,
+    exits: 0
+  };
+
+  var fn = function() {
+		dataService
+			.getMovements()
+			.then(function (data) {
+        if ($scope.movements.entries != data.entries) {
+          $scope.update('entries');
+        }
+
+        if ($scope.movements.exits != data.exits) {
+          $scope.update('exits');
+        }
+
+        $scope.movements = data;
+			});
+	};
+
+	$scope.entriesClass = '';
+	$scope.exitsClass = '';
+
+	$scope.update = function(type) {
+		if ($scope[type + 'Class'] == '') {
+			$timeout.cancel($scope[type + 'Timeout']);
+
+			$scope[type + 'Class'] = 'pulsor-anim-' + type;
+
+			$scope[type + 'Timeout'] = $timeout(function () {
+				$scope[type + 'Class'] = '';
+			}, 2000); // Delay is the same as the animation speed
+		}
+	};
+
+	$interval(fn, 5000);
+
+	fn();
+}]);
+
+
+app.directive('paleoPulsor', [ function() {
+	return {
+		restrict: 'E',
+    replace: true,
+    templateUrl: 'partials/widgets/pulsor',
 		scope: {
 			cars: '='
 		},
-		controller: 'TilesController',
+		controller: 'PulsorController',
 		link: function ($scope, element, attrs) {
 		}
 	};

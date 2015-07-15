@@ -35,3 +35,15 @@ router.route('/tiles')
 				return next(err);
 			})
 	});
+
+router.route('/movements')
+	.get(function(req, res, next) {
+		return dataService
+			.getMovements()
+			.then(function(result) {
+				return res.status(200).json(result).end();
+			})
+			.error(function(err) {
+				return next(err);
+			})
+	});

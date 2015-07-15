@@ -38,7 +38,21 @@ var scales = [{
 	granularity: 30
 }];
 
+var actionsReceived = {
+  entries: 0,
+  exits: 0
+};
+
 module.exports = {
+  collectAction: function(action) {
+    if (action.type == onfig.app.actionTypes.carIn) {
+      actionsReceived.entries += 1;
+    }
+    else if (action.type == onfig.app.actionTypes.carOut) {
+      actionsReceived.exits++;
+    }
+  },
+
 	getEvolution: function(minutes) {
 		var endDate = moment();
 		var startDate = moment(endDate).subtract(minutes, 'minutes');
@@ -262,5 +276,25 @@ module.exports = {
 		}
 
 		return promise;
-	}
+	},
+
+  getMovements: function() {
+    var promise = Promise.resolve();
+
+    if (config.app.randomData) {
+      promise = promise.then(function() {
+        return {
+          entries: randomInt(0, 10),
+          exits: randomInt(0, 10)
+        };
+      });
+    }
+    else {
+      promise = promise.then(function() {
+        return actionsReceived;
+      });
+    }
+
+    return promise;
+  }
 };

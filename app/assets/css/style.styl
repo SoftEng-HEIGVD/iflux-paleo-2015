@@ -38,6 +38,18 @@ h1, p
   stroke-width: 1.5px;
 }
 
+.widget-layout
+  display flex
+
+  .widget-layout-left
+    flex 1
+
+  .widget-layout-center
+    flex 3
+
+  .widget-layout-right
+    flex 1
+
 .widget-container
   border 2px black solid
   flex-direction column
@@ -185,13 +197,125 @@ table.tiles
 .no-data
   background-color #d2d2d2
 
-@media(max-width 1200px)
+//.pulsor-widget
+//  border 2px black solid
+//  border-radius 5px
+//  padding 5px
+//  margin 5px
+//
+//  h3
+//    border-bottom 1px solid gray
+//    padding 5px 0 10px 0
+//    text-align center
+//    margin 0 0 5px
+
+pulsorBackgroundColor = #fff
+pulsorContainerWidth = 110px
+dotMarginFactor = 4
+pulsorWidth = 40px
+pulsorColors = {
+  green: hsl(125, 100%, 55%),
+  red: hsl(350, 100%, 55%)
+}
+
+shadow($b, $s, $sm, $c)
+  box-shadow: 0 0 8px 6px $c, 0 0 $b $s pulsorBackgroundColor, 0 0 $b $s + $sm $c
+
+.pulsors
+  justify-content center
+  margin-top 5px
+  display flex
+
+.pulsor-container
+  width pulsorContainerWidth
+  height pulsorContainerWidth
+  padding ((pulsorContainerWidth - pulsorWidth) / 2)px
+  //display flex
+  //float left
+
+  .pulsor-anim
+    border-radius: 50%
+    transition(all 0.2s)
+    cursor: pointer
+    height: pulsorWidth
+    width: pulsorWidth
+
+    &:nth-child(n+2)
+      margin-left: (pulsorWidth * dotMarginFactor)
+
+  .pulsor-entries
+    background: lighten(pulsorColors.green, 5%)
+
+  .pulsor-exits
+    background: lighten(pulsorColors.red, 5%)
+
+  .pulsor-anim-entries
+    animation pulsor-keyframes-1 2s 0s ease-out
+
+  .pulsor-anim-exits
+    animation pulsor-keyframes-2 2s 0s ease-out
+
+@keyframes pulsor-keyframes-1
+  0%
+    shadow(0px, 0px, 0px, rgba(pulsorColors.green, 0))
+  10%
+    shadow(12px, 10px, 4px, pulsorColors.green)
+  100%
+    shadow(0px, 40px, 0px, rgba(pulsorColors.green, 0))
+
+@keyframes pulsor-keyframes-2
+  0%
+    shadow(0px, 0px, 0px, rgba(pulsorColors.red, 0))
+  10%
+    shadow(12px, 10px, 4px, pulsorColors.red)
+  100%
+    shadow(0px, 40px, 0px, rgba(pulsorColors.red, 0))
+
+//for $i in (0)..(($n) - 1)
+//  $c = hsl($hsl[$i] + 10 * $i, 100%, 55%)
+//  $c2 = hsl(6 * $i, 100%, 55%)
+//
+//  .pulsor-anim:nth-child({$i + 1})
+//    background: lighten($c, 5%)
+//    animation r+$i 2s ($i/4)s ease-out
+
+  //@keyframes r2{$i}
+  //  from
+  //    shadow(12px,10px,4px,$c2)
+  //  to
+  //    shadow(4px,40px,1px,rgba($c2,0))
+
+
+@media(max-width 1210px)
   .graph
     text-align center
 
+  .widget-layout
+    display flex
+    flex-direction column
+
+    .widget-layout-left
+      flex 1
+      order 1
+
+    .widget-layout-center
+      flex 1
+      order 3
+
+    .widget-layout-right
+      flex 1
+      order 2
+
   .widget
     flex-direction column !important
+    justify-content center
 
     .w-right
       max-width 100% !important
       margin-left 0 !important
+
+  table.tiles
+    margin auto
+
+  .pulsors
+    flex-direction row !important
