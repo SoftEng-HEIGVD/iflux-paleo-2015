@@ -36,6 +36,9 @@ var scales = [{
 }, {
 	max: 1440,
 	granularity: 30
+}, {
+  max: 10080,
+  granularity: 120
 }];
 
 var actionsReceived = {
@@ -54,8 +57,17 @@ module.exports = {
   },
 
 	getEvolution: function(minutes) {
-		var endDate = moment();
-		var startDate = moment(endDate).subtract(minutes, 'minutes');
+		var endDate;
+    var startDate;
+
+    if (minutes == 'paleo') {
+      endDate = moment('2015-07-27');
+      startDate = moment(endDate).subtract(7, 'days');
+    }
+    else {
+      endDate = moment();
+      startDate = moment(endDate).subtract(minutes, 'minutes');
+    }
 
 		var promise = Promise
 			.resolve({
@@ -64,9 +76,14 @@ module.exports = {
 			})
 
 			.then(function(memo) {
-				memo.scale = _.find(scales, function (scale) {
-					return minutes <= scale.max;
-				});
+        if (minutes == 'paleo') {
+          memo.scale = scales[scales.length - 1];
+        }
+        else {
+          memo.scale = _.find(scales, function (scale) {
+            return minutes <= scale.max;
+          });
+        }
 
 				return memo;
 			});
@@ -86,8 +103,8 @@ module.exports = {
 					var carsIn = {};
 					for (var i = 0; i < memo.nbCarsIn; i++) {
 						var randDate = randomDate(memo.minDate, memo.maxDate);
-						var calcDate = moment(endDate).subtract(moment(randDate));
-						var idx = Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
+						var diffDurationInMinutes = moment(endDate).diff(moment(randDate), 'minutes');
+						var idx = Math.floor(diffDurationInMinutes / memo.scale.granularity);
 
 						if (!carsIn[idx]) {
 							carsIn[idx] = 0;
@@ -108,8 +125,8 @@ module.exports = {
 					var carsOut = {};
 					for (var i = 0; i < memo.nbCarsOut; i++) {
 						var randDate = randomDate(memo.minDate, memo.maxDate);
-						var calcDate = moment(endDate).subtract(moment(randDate));
-						var idx = Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
+            var diffDurationInMinutes = moment(endDate).diff(moment(randDate), 'minutes');
+            var idx = Math.floor(diffDurationInMinutes / memo.scale.granularity);
 
 						if (!carsOut[idx]) {
 							carsOut[idx] = 0;
@@ -238,41 +255,126 @@ module.exports = {
 				})
 		}
 		else {
-			promise = promise
-				.then(function (memo) {
-					var endDate = moment();
-					var startDate = moment(endDate).subtract(7, 'days');
+      if (type != 'total') {
+        promise = promise
+          .then(function (memo) {
+            var endDate = moment();
+            var startDate = moment(endDate).subtract(7, 'days');
 
-					return analyticsProvider
-						.getMetrics('ch.heigvd.iflux.paleo2015.' + type, 'daily', startDate)
-						.then(function (metrics) {
-							var countDays = 0;
-							var max = 0;
+            return analyticsProvider
+              .getMetrics('ch.heigvd.iflux.paleo2015.' + type, 'daily', startDate)
+              .then(function (metrics) {
+                var countDays = 0;
+                var max = 0;
 
-							_.each(metrics, function (metric) {
-								var date = moment(metric.header.startDate);
-								var dayNumber = date.day();
-								memo[countDays] = { day: days[dayNumber], values: [] };
+                _.each(metrics, function (metric) {
+                  var date = moment(metric.header.startDate);
+                  var dayNumber = date.day();
+                  memo[countDays] = {day: days[dayNumber], values: []};
 
-								for (var i = 0; i < 24; i++) {
-									if (metric.hourly && metric.hourly[i]) {
-										memo[countDays].values.push(metric.hourly[i].sum);
+                  for (var i = 0; i < 24; i++) {
+                    if (metric.hourly && metric.hourly[i]) {
+                      memo[countDays].values.push(metric.hourly[i].sum);
 
-										if (memo[countDays].values[i] > max) {
-											max = memo[countDays].values[i];
-										}
-									}
-									else {
-										memo[countDays].values.push(0);
-									}
-								}
+                      if (memo[countDays].values[i] > max) {
+                        max = memo[countDays].values[i];
+                      }
+                    }
+                    else {
+                      memo[countDays].values.push(0);
+                    }
+                  }
 
-								countDays++;
-							});
+                  countDays++;
+                });
 
-							return { tiles: memo, min: 0, max: max };
-						});
-				})
+                return {tiles: memo, min: 0, max: max};
+              });
+          });
+      }
+      else {
+        var endDate = moment();
+        var startDate = moment(endDate).subtract(7, 'days');
+
+        promise = promise
+          .then(function (memo) {
+            return analyticsProvider
+              .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'daily', startDate)
+              .then(function(entries) {
+                var countDays = 0;
+                var result = {};
+
+                _.each(entries, function (metric) {
+                  var date = moment(metric.header.startDate);
+                  var dayNumber = date.day();
+                  result[countDays] = {day: days[dayNumber], values: []};
+
+                  for (var i = 0; i < 24; i++) {
+                    if (metric.hourly && metric.hourly[i]) {
+                      result[countDays].values.push(metric.hourly[i].sum);
+                    }
+                    else {
+                      result[countDays].values.push(0);
+                    }
+                  }
+
+                  countDays++;
+                });
+
+                memo.entries = result;
+
+                return memo;
+              });
+          })
+          .then(function (memo) {
+            return analyticsProvider
+              .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'daily', startDate)
+              .then(function(exits) {
+                var countDays = 0;
+                var result = {};
+
+                _.each(exits, function (metric) {
+                  var date = moment(metric.header.startDate);
+                  var dayNumber = date.day();
+                  result[countDays] = {day: days[dayNumber], values: []};
+
+                  for (var i = 0; i < 24; i++) {
+                    if (metric.hourly && metric.hourly[i]) {
+                      result[countDays].values.push(metric.hourly[i].sum);
+                    }
+                    else {
+                      result[countDays].values.push(0);
+                    }
+                  }
+
+                  countDays++;
+                });
+
+                memo.exits = result;
+
+                return memo;
+              })
+          })
+          .then(function (memo) {
+            var max = 0;
+            var result = {};
+
+            for (var i = 0; i < _.keys(memo.entries).length; i++) {
+              result[i] = { day: memo.entries[i].day, values: [] };
+
+              for (var j = 0; j < 24; j++) {
+                var total = memo.entries[i].values[j] - memo.exits[i].values[j];
+                result[i].values.push(total < 0 ? 0 : total);
+
+                if (total > max) {
+                  max = total;
+                }
+              }
+            }
+
+            return {tiles: result, min: 0, max: max};
+          });
+      }
 		}
 
 		return promise;

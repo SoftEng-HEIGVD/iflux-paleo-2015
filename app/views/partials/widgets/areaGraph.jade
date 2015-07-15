@@ -6,10 +6,11 @@
 		.w-right
 			div
 				h4.center Actions
-				button.btn.btn-block(ng-class='getClass(60)' ng-click='updateInterval(60)') Last hour
-				button.btn.btn-block(ng-class='getClass(360)' ng-click='updateInterval(360)') Last 6 hours
-				button.btn.btn-block(ng-class='getClass(720)' ng-click='updateInterval(720)') Last 12 hours
-				button.btn.btn-block(ng-class='getClass(1440)' ng-click='updateInterval(1440)') Last 24 hours
+				button.btn.btn-block(ng-class='getClass("hour")' ng-click='update("hour")') Last hour
+				button.btn.btn-block(ng-class='getClass("six_hours")' ng-click='update("six_hours")') Last 6 hours
+				button.btn.btn-block(ng-class='getClass("twelve_hours")' ng-click='update("twelve_hours")') Last 12 hours
+				button.btn.btn-block(ng-class='getClass("day")' ng-click='update("day")') Last 24 hours
+				button.btn.btn-block(ng-class='getClass("paleo")' ng-click='update("paleo")') All the festival duration
 			div
 				h4.center Legends
 				p Green and red areas shows entries and exits over the time.

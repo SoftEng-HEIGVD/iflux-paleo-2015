@@ -53,23 +53,42 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 }]);
 
 app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory', function($scope, $stateParams, $interval, dataService) {
-	var ticks = {
-		60: 10,
-		360: 6,
-		720: 12,
-		1440: 24
-	};
-
-	var xTitles = {
-		60: 'Last hour',
-		360: 'Last six hours',
-		720: 'Last twelve hours',
-		1440: 'Last day'
-	};
+	var config = {
+    hour: {
+      q: 60,
+      minutes: 60,
+      ticks: 10,
+      xTitle: 'Last hour'
+    },
+    six_hours: {
+      q: 360,
+      minutes: 360,
+      ticks: 6,
+      xTitle: 'Last six hours'
+    },
+    twelve_hours: {
+      q: 720,
+      minutes: 720,
+      ticks: 12,
+      xTitle: 'Last twelve hours'
+    },
+    day: {
+      q: 1440,
+      minutes: 1440,
+      ticks: 24,
+      xTitle: 'Last day'
+    },
+    paleo: {
+      q: 'paleo',
+      minutes: 10080,
+      ticks: 7,
+      xTitle: 'All the festival'
+    }
+  };
 
 	var fn = function() {
 		dataService
-			.getEvolution($scope.interval)
+			.getEvolution($scope.graphType.q)
 			.then(function(data) {
 				if (!data) {
 					return;
@@ -85,7 +104,7 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 				var maxYValue = 0;
 				var maxY2Value = 0;
 
-				for (var i = 0; i <= Math.floor($scope.interval / data.granularity); i++) {
+				for (var i = 0; i <= Math.floor($scope.graphType.minutes / data.granularity); i++) {
 					cars.carsIn[i] = {
 						x: i,
 						y: data.carsIn[i] ? data.carsIn[i] : 0
@@ -114,6 +133,10 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 						y: cars.carsIn[i].y + cars.carsOut[i].y + (cars.carsTotal[i-1] ? cars.carsTotal[i-1].y : 0)
 					};
 
+          if (cars.carsTotal[i].y < 0)  {
+            cars.carsTotal[i].y = 0;
+          }
+
 					if (maxY2Value < Math.abs(cars.carsTotal[i].y)) {
 						maxY2Value = Math.abs(cars.carsTotal[i].y);
 					}
@@ -128,20 +151,22 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 				$scope.maxYValue = maxYValue;
 				$scope.maxY2Value = maxY2Value;
 				$scope.cars = cars;
-				$scope.ticks = ticks[$scope.interval];
-				$scope.xTitle = xTitles[$scope.interval];
+				$scope.ticks = $scope.graphType.ticks;
+				$scope.xTitle = $scope.graphType.xTitle;
 			});
 	};
 
-	$scope.interval = 60;
+	$scope.graphType = config.hour;
+  $scope.graphTypeName = 'hour';
 
-	$scope.updateInterval = function(minutes) {
-		$scope.interval = minutes;
+	$scope.update = function(graphType) {
+		$scope.graphTypeName = graphType;
+    $scope.graphType = config[graphType];
 		fn();
 	};
 
-	$scope.getClass = function(minutes) {
-		if (minutes == $scope.interval) {
+	$scope.getClass = function(graphType) {
+		if (graphType == $scope.graphTypeName) {
 			return 'btn-primary';
 		}
 		else {
@@ -216,7 +241,8 @@ app.directive('paleoAreaGraph', [ function() {
 			}
 
 			function redrawAxis() {
-				var base = (Math.floor($scope.interval / $scope.granularity) / $scope.ticks);
+        var base = (Math.floor($scope.graphType.minutes / $scope.granularity) / $scope.ticks);
+
 				var ticks = _.reduce(_.range($scope.ticks + 1), function(memo, val) {
 					memo.push(val * base);
 					return memo;
@@ -233,7 +259,7 @@ app.directive('paleoAreaGraph', [ function() {
 						var cur = d * $scope.granularity;
 						var duration = moment.duration((max - cur) * 60000);
 
-						if (duration.days() > 1) {
+						if (duration.days() > 1 || (duration.days() == 1 && $scope.graphTypeName == 'paleo')) {
 							str += duration.days() + 'd ';
 						}
 						else if (duration.days() == 1) {
@@ -309,11 +335,11 @@ app.directive('paleoAreaGraph', [ function() {
 					return;
 				}
 
-				if ($scope.interval != $scope.oldInterval) {
+				if ($scope.graphType != $scope.oldGraphType) {
 					redrawBase();
 				}
 
-				x.domain([0, $scope.interval / $scope.granularity]);
+        x.domain([0, $scope.graphType.minutes / $scope.granularity]);
 				y.domain([-$scope.maxYValue, $scope.maxYValue]);
 				y2.domain([-$scope.maxY2Value, $scope.maxY2Value]);
 
@@ -353,9 +379,9 @@ app.directive('paleoAreaGraph', [ function() {
 		      .attr("class", "line1")
 		      .attr("d", line);
 
-				if ($scope.interval != $scope.oldInterval) {
+				if ($scope.graphType != $scope.oldGraphType) {
 					redrawAxis();
-					$scope.oldInterval = $scope.interval;
+					$scope.oldGraphType = $scope.graphType;
 				}
 			});
 		}
