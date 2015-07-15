@@ -45,10 +45,10 @@ var actionsReceived = {
 
 module.exports = {
   collectAction: function(action) {
-    if (action.type == onfig.app.actionTypes.carIn) {
+    if (action.type == config.app.actionTypes.carIn) {
       actionsReceived.entries += 1;
     }
-    else if (action.type == onfig.app.actionTypes.carOut) {
+    else if (action.type == config.app.actionTypes.carOut) {
       actionsReceived.exits++;
     }
   },
