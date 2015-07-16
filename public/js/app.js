@@ -167,10 +167,10 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 
 	$scope.getClass = function(graphType) {
 		if (graphType == $scope.graphTypeName) {
-			return 'btn-primary';
+			return 'btn-success';
 		}
 		else {
-			return '';
+			return 'btn-primary';
 		}
 	};
 
@@ -308,26 +308,12 @@ app.directive('paleoAreaGraph', [ function() {
 					.append("g")
 					.attr("class", "y axis")
 					.call(yAxis)
-					//.append("text")
-					//.attr("transform", "rotate(-90)")
-					//.attr("y", -35)
-					//.attr("x", height / -2)
-					//.style("text-anchor", "middle")
-					//.attr("class", "axisText")
-					//.text("Nb cars in/out. (areas)");
 
 				svg
 					.append("g")
 					.attr("class", "y axis")
 					.attr("transform", "translate(" + width + ",0)")
 					.call(yAxis2)
-					//.append("text")
-					//.attr("transform", "rotate(-90)")
-					//.attr("y", 50)
-					//.attr("x", height / -2)
-					//.style("text-anchor", "middle")
-					//.attr("class", "axisText")
-					//.text("Total nb cars. (line)");
 			}
 
 			$scope.$watch('cars', function(cars) {
@@ -431,10 +417,10 @@ app.controller('TilesController', [ '$scope', '$stateParams', '$interval', 'Data
 
 	$scope.getActionClass = function(type) {
 		if ($scope.type == type) {
-			return 'btn-primary';
+			return 'btn-success';
 		}
 		else {
-			return '';
+			return 'btn-primary';
 		}
 	};
 

@@ -1,44 +1,97 @@
 *, *before, *after
   box-sizing border-box
 
+body
+  font-family Arial,Verdana,sans-serif
+  background-color #1293D2 !important
+
 h1, p
   padding 10px
 
 .center
   text-align center
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
+.layout
+  display flex
+  flex-direction column
+
+  a
+    text-decoration none
+    outline none
+    color #fff
+
+    &:hover
+      color #FFE800
+
+    &:active
+      color #FFE800
+
+.layout-header
+  flex 1
+
+  .title
+    display flex
+
+    .title-left
+      flex 1
+
+    .title-center
+      margin 5px 25px
+      flex 3
+
+      p
+        padding 0
+        margin 0
+
+      p.festival
+        font-weight bold
+        font-size 36px
+
+      p.dates
+        font-weight bold
+        margin-top -10px
+        font-size 18px
+
+    .title-right
+      flex 1
+
+.layout-body
+  flex 8
+
+.layout-footer
+  flex 1
+
+  p
+    text-align center
+    font-size 16px
+
+.axis path, .axis line
+  fill none
+  stroke #000
+  shape-rendering crispEdges
 
 .axisText
   font-size 1.5em
-  font-weight bold;
+  font-weight bold
 
-.area1 {
-  fill: #50e25b;
-}
+.area1
+  fill #4fc55a
 
-.area2 {
-  fill: #b92a1e;
-}
+.area2
+  fill #b92a1e
 
-.line1 {
-  fill: none;
-  stroke: #4a70e2;
-  stroke-width: 1.5px;
-}
+.line1
+  fill none
+  stroke #e2b24c
+  stroke-width 2px
 
-.line2 {
-  fill: none;
-  stroke: #481315;
-  stroke-width: 1.5px;
-}
+.line2
+  fill none
+  stroke #481315
+  stroke-width 2px
 
 .widget-layout
+  margin 0 10px
   display flex
 
   .widget-layout-left
@@ -52,26 +105,25 @@ h1, p
 
 .widget-container
   border 2px black solid
+  background-color #efefef
   flex-direction column
   border-radius 5px
   display flex
-  padding 5px
   margin 5px
 
   h3
-    padding 5px 0 10px 0
+    border-bottom 1px solid black
+    background-color rgba(11, 58, 81, 0.93)
     text-align center
+    padding 10px 0
+    color #fff
     margin 0
-    border-bottom 1px solid gray
 
   .widget
-    //border 2px black solid
     flex-direction row
-    //border-radius 5px
-    display flex
-    //padding 5px
-    //margin 5px
     margin-top 5px
+    display flex
+    padding 10px
 
     .w-left
       flex 1
@@ -197,19 +249,7 @@ table.tiles
 .no-data
   background-color #d2d2d2
 
-//.pulsor-widget
-//  border 2px black solid
-//  border-radius 5px
-//  padding 5px
-//  margin 5px
-//
-//  h3
-//    border-bottom 1px solid gray
-//    padding 5px 0 10px 0
-//    text-align center
-//    margin 0 0 5px
-
-pulsorBackgroundColor = #fff
+pulsorBackgroundColor = #efefef
 pulsorContainerWidth = 110px
 dotMarginFactor = 4
 pulsorWidth = 40px
@@ -230,15 +270,13 @@ shadow($b, $s, $sm, $c)
   width pulsorContainerWidth
   height pulsorContainerWidth
   padding ((pulsorContainerWidth - pulsorWidth) / 2)px
-  //display flex
-  //float left
+  margin 5px
 
   .pulsor-anim
-    border-radius: 50%
     transition(all 0.2s)
-    cursor: pointer
-    height: pulsorWidth
-    width: pulsorWidth
+    height pulsorWidth
+    width pulsorWidth
+    border-radius 50%
 
     &:nth-child(n+2)
       margin-left: (pulsorWidth * dotMarginFactor)
@@ -270,21 +308,6 @@ shadow($b, $s, $sm, $c)
     shadow(12px, 10px, 4px, pulsorColors.red)
   100%
     shadow(0px, 40px, 0px, rgba(pulsorColors.red, 0))
-
-//for $i in (0)..(($n) - 1)
-//  $c = hsl($hsl[$i] + 10 * $i, 100%, 55%)
-//  $c2 = hsl(6 * $i, 100%, 55%)
-//
-//  .pulsor-anim:nth-child({$i + 1})
-//    background: lighten($c, 5%)
-//    animation r+$i 2s ($i/4)s ease-out
-
-  //@keyframes r2{$i}
-  //  from
-  //    shadow(12px,10px,4px,$c2)
-  //  to
-  //    shadow(4px,40px,1px,rgba($c2,0))
-
 
 @media(max-width 1210px)
   .graph

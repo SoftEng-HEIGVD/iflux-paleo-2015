@@ -24,14 +24,18 @@ html(lang='en')
 
 			script.
 				app.constant('CONTEXT_ROOT', '#{contextRoot}');
-	body(ng-app="demoapp")
-		nav.navbar.navbar-default.navbar-static-top.navbar-inverse
-			.container
-				.navbar-header
-					a.navbar-brand(ui-sref="main") iFLUX Paleo Parking Trends 2015
-				//ul.nav.navbar-nav
-				//	li
-				//		a(ui-sref='archi') Demo Architecture
+	body.layout(ng-app="demoapp")
+		.layout-header
+			.title
+				.title-left
+				.title-center
+					a(target='_blank' href='http://yeah.paleo.ch/')
+						p.festival 40#[sup e] PALÉO FESTIVAL NYON
+						p.dates 20 AU 26 JUILLET 2015
+				.title-right
 
-		div(ui-view)
+		.layout-body(ui-view)
+
+		.layout-footer
+			p #[a(target='_blank' href='http://www.iflux.io') iFLUX] demonstration © 2015
 
