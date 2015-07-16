@@ -32,12 +32,9 @@ h1, p
   .title
     display flex
 
-    .title-left
-      flex 1
-
     .title-center
       margin 5px 25px
-      flex 3
+      flex 1
 
       p
         padding 0
@@ -51,9 +48,6 @@ h1, p
         font-weight bold
         margin-top -10px
         font-size 18px
-
-    .title-right
-      flex 1
 
 .layout-body
   flex 8
@@ -185,6 +179,7 @@ span.yellow
 table.tiles
   border-collapse separate
   border-spacing 3px
+  margin auto
 
   td, th
     vertical-align middle
@@ -406,3 +401,35 @@ shadow($b, $s, $sm, $c)
 
     table
       margin auto
+
+@media(max-width 550px)
+  .layout-header
+    .title
+      .title-center
+        p.festival
+          font-weight bold
+          font-size 27px
+
+        p.dates
+          font-weight bold
+          margin-top -5px
+          font-size 13px
+
+@media(max-width 410px)
+  .layout-header
+    .title
+      .title-center
+        p.festival
+          font-weight bold
+          font-size 18px
+
+        p.dates
+          font-weight bold
+          margin-top -5px
+          font-size 9px
+
+@media(max-width 300px)
+  .layout-header
+    .title
+      height 0 !important
+      visibility hidden
