@@ -47,3 +47,18 @@ router.route('/movements')
 				return next(err);
 			})
 	});
+
+router.route('/daysAggregation')
+	.get(function(req, res, next) {
+    var startDate = req.query.startDate ? req.query.startDate : '2015-07-20';
+    var endDate = req.query.endDate ? req.query.endDate : '2015-07-26';
+
+		return dataService
+			.getDaysAggregation(startDate, endDate)
+			.then(function(result) {
+				return res.status(200).json(result).end();
+			})
+			.error(function(err) {
+				return next(err);
+			})
+	});

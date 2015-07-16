@@ -398,5 +398,129 @@ module.exports = {
     }
 
     return promise;
+  },
+
+  getDaysAggregation: function(startDate, endDate) {
+    var startDateMoment = moment(startDate + ' 00:00:00', 'YYYY-MM-DD HH:mm:ss');
+    var endDateMoment = moment(endDate + ' 23:59:59', 'YYYY-MM-DD HH:mm:ss');
+    var diffDurationInDays = endDateMoment.diff(startDateMoment, 'days');
+
+    var promise = Promise.resolve();
+
+    if (config.app.randomData) {
+      promise = promise.then(function() {
+        var result = [];
+
+        _.each(['Car entries', 'Car exits'], function(title) {
+          var data = {
+            name: title,
+            values: []
+          };
+
+          for (var i = 0; i <= diffDurationInDays; i++) {
+            data.values.push(randomInt(0, 750));
+          }
+
+          result.push(data);
+        });
+
+        var totalCars = {
+          name: 'Total cars in parking',
+          values: []
+        };
+
+        var totalMovements = {
+          name: 'Total cars entries and exits',
+          values: []
+        };
+
+        for (var i = 0; i <= diffDurationInDays; i++) {
+          totalCars.values[i] = result[0].values[i] >= result[1].values[i] ? result[0].values[i] - result[1].values[i] : 0;
+          totalMovements.values[i] = result[0].values[i] + result[1].values[i];
+        }
+
+        result.push(totalCars, totalMovements);
+
+        return result;
+      });
+    }
+    else {
+      promise = promise
+        .then(function() { return []; })
+        .then(function (finalResult) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'daily', startDateMoment, endDateMoment)
+            .then(function(entries) {
+              var result = {
+                name: 'Car entries',
+                values: []
+              };
+
+              _.each(entries, function(metric) {
+                var metricDate = moment(metric.header.startDate);
+                var diffDate = metricDate.diff(startDateMoment, 'days');
+                result.values[diffDate] = metric.total.sum;
+              });
+
+              for (var i = 0; i <= diffDurationInDays; i++) {
+                if (_.isUndefined(result.values[i])) {
+                  result.values[i] = 0;
+                }
+              }
+
+              finalResult.push(result);
+
+              return finalResult;
+            });
+        })
+        .then(function (finalResult) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'daily', startDateMoment, endDateMoment)
+            .then(function(exits) {
+              var result = {
+                name: 'Car exits',
+                values: []
+              };
+
+              _.each(exits, function(metric) {
+                var metricDate = moment(metric.header.startDate);
+                var diffDate = metricDate.diff(startDateMoment, 'days');
+                result.values[diffDate] = metric.total.sum;
+              });
+
+              for (var i = 0; i <= diffDurationInDays; i++) {
+                if (_.isUndefined(result.values[i])) {
+                  result.values[i] = 0;
+                }
+              }
+
+              finalResult.push(result);
+
+              return finalResult;
+            })
+        })
+        .then(function (finalResult) {
+          var totalCars = {
+            name: 'Total cars in parking',
+            values: []
+          };
+
+          var totalMovements = {
+            name: 'Total cars entries and exits',
+            values: []
+          };
+
+          for (var i = 0; i <= diffDurationInDays; i++) {
+            totalCars.values[i] = finalResult[0].values[i] >= finalResult[1].values[i] ? finalResult[0].values[i] - finalResult[1].values[i] : 0;
+            totalMovements.values[i] = finalResult[0].values[i] + finalResult[1].values[i];
+          }
+
+          finalResult.push(totalCars, totalMovements);
+
+          return finalResult;
+        });
+    }
+
+    return promise;
   }
 };

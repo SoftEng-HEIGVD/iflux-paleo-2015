@@ -214,12 +214,13 @@ AnalyticsProvider.prototype.reportMeasure = function (measure) {
   }
 };
 
-AnalyticsProvider.prototype.getMetrics = function (metric, granularity, timestamp) {
+AnalyticsProvider.prototype.getMetrics = function (metric, granularity, timestamp, endDate) {
   var collectionName = 'metrics.' + metric + '.' + granularity;
   var startOf;
 
 	var selectedFields = {
     header: 1,
+    total: 1,
     lastMeasure : 1,
     last5Measures : 1,
     _id: 0
@@ -241,15 +242,20 @@ AnalyticsProvider.prototype.getMetrics = function (metric, granularity, timestam
   }
 
   var filter = {
-    "header.startDate": { $gt: moment(timestamp).tz(this.timeZone).startOf(startOf).toDate() }
+    "header.startDate": { $gte: moment(timestamp).tz(this.timeZone).toDate() }
   };
+
+  if (endDate) {
+    filter['header.endDate'] = { $lte: moment(endDate).tz(this.timeZone).toDate() }
+  }
 
 	// TODO: See what we want to log exactly
   //console.log(filter);
   //console.log(selectedFields);
   return db
 	  .collection(collectionName)
-	  .find(filter, selectedFields);
+	  .find(filter, selectedFields)
+    .sort({ 'header.startDate': 1 });
 };
 
 exports.AnalyticsProvider = AnalyticsProvider;

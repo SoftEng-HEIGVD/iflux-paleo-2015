@@ -95,10 +95,10 @@ h1, p
   display flex
 
   .widget-layout-left
-    flex 1
+    flex 2
 
   .widget-layout-center
-    flex 3
+    flex 4
 
   .widget-layout-right
     flex 1
@@ -142,6 +142,13 @@ h1, p
       .btn
         width 100%
 
+  p
+    padding 0
+    margin 0 0 10px
+
+  p:last-of-type
+    margin-bottom 0
+
 .graph
   height 0
   padding-top 58.82% /* 500px/850px */
@@ -155,6 +162,26 @@ h1, p
     left 0
     top 0
 
+.graph-no-data
+  font-weight bold
+  font-size 20px
+
+span.red
+  font-weight bold
+  color #b92a1e
+
+span.green
+  font-weight bold
+  color #4fc55a
+
+span.dark
+  font-weight bold
+  color #481315
+
+span.yellow
+  font-weight bold
+  color #e2b24c
+
 table.tiles
   border-collapse separate
   border-spacing 3px
@@ -165,8 +192,8 @@ table.tiles
     text-align center
     font-size .8em
     padding 2px
-    height 34px
-    width 34px
+    height 28px
+    width 28px
 
   td.tile
     border 1px solid white
@@ -182,8 +209,6 @@ table.tiles
     background-color #eae6d4
 
 .tiles-legend
-  background #F3F3F3 none repeat scroll 0 0
-  border 1px solid #F0F0F0
   border-radius 3px
   line-height 11px
   overflow hidden
@@ -263,8 +288,16 @@ shadow($b, $s, $sm, $c)
 
 .pulsors
   justify-content center
-  margin-top 5px
+  //margin-top 5px
   display flex
+  padding 0 !important
+  margin 0 !important
+
+  table
+    th
+      text-align center
+      font-weight bold
+      font-size 20px
 
 .pulsor-container
   width pulsorContainerWidth
@@ -293,6 +326,29 @@ shadow($b, $s, $sm, $c)
   .pulsor-anim-exits
     animation pulsor-keyframes-2 2s 0s ease-out
 
+.rounds
+  width 100%
+
+  .axis path, .axis line
+    fill none
+    stroke #b6b6b6
+    shape-rendering crispEdges
+
+  .tick text
+    fill #999
+
+  g.journal.active
+    cursor pointer
+
+  text.label
+    font-weight bold
+    font-size 12px
+    cursor pointer
+
+  text.value
+    font-weight bold
+    font-size 12px
+
 @keyframes pulsor-keyframes-1
   0%
     shadow(0px, 0px, 0px, rgba(pulsorColors.green, 0))
@@ -309,7 +365,7 @@ shadow($b, $s, $sm, $c)
   100%
     shadow(0px, 40px, 0px, rgba(pulsorColors.red, 0))
 
-@media(max-width 1210px)
+@media(max-width 1300px)
   .graph
     text-align center
 

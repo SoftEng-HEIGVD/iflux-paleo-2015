@@ -34,7 +34,7 @@ var config = {
 		    carIn: process.env.PALEO_CAR_IN_ACTION_TYPE,
 		    carOut: process.env.PALEO_CAR_OUT_ACTION_TYPE
 	    },
-	    randomData: true
+	    randomData: false
     },
     port: process.env.PORT || 3008,
 	  //db: mongoBaseUri + '-development'

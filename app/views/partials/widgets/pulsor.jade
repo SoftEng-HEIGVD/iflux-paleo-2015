@@ -1,8 +1,17 @@
 .widget-container
-	h3 Entries and exits detections
+	h3 Detections
 
 	.widget.pulsors
-		.pulsor-container
-			.pulsor-entries.pulsor-anim(ng-class='entriesClass')
-		.pulsor-container
-			.pulsor-exits.pulsor-anim(ng-class='exitsClass')
+		table
+			thead
+				tr
+					th Entries
+					th Exits
+			tbody
+				tr
+					td
+						.pulsor-container
+							.pulsor-entries.pulsor-anim(ng-class='entriesClass')
+					td
+						.pulsor-container
+							.pulsor-exits.pulsor-anim(ng-class='exitsClass')
