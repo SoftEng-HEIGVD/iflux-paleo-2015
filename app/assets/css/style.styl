@@ -385,9 +385,14 @@ shadow($b, $s, $sm, $c)
       flex 1
       order 2
 
+@media(max-width 920px)
   .widget
-    flex-direction column !important
-    justify-content center
+    .w-left-tiles
+      overflow auto
+
+@media(max-width 800px)
+  .widget
+    display block !important
 
     .w-right
       max-width 100% !important
@@ -398,3 +403,6 @@ shadow($b, $s, $sm, $c)
 
   .pulsors
     flex-direction row !important
+
+    table
+      margin auto
