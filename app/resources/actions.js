@@ -32,6 +32,13 @@ router.route('/')
 				value = 1;
 			}
 
+      if (action.type === config.app.actionTypes.carIn || action.type === config.app.actionTypes.carOut) {
+        console.log('%s movements collected', value);
+        var measure = new Measure('ch.heigvd.iflux.paleo2015.movements', value, timestamp);
+
+        router.app.analyticsProvider.reportMeasure(measure);
+      }
+
 			if (action.type === config.app.actionTypes.carIn) {
 				console.log('%s entries collected', value);
 				var measure = new Measure('ch.heigvd.iflux.paleo2015.entries', value, timestamp);

@@ -1,0 +1,12 @@
+.widget-container
+	h3 Summary
+
+	.widget
+		.summary
+			p In the context of Paleo festival, we have installed two sensors in a parking to detect the car entries and exits. This page is a visualization of the metrics collected through the time.
+			p This page displays various statistics about the occupation of a parking at the Festival.
+			p Two sensors, located at the entrance and exit gates detect passing cars. Connected to the Internet via a low-power mesh network, the sensors send notifications to our cloud-based middleware. Rules are applied to compute various statistics, visualized in these graphs.
+
+			.btn-group.summary-buttons
+				button.summary-button.btn(ng-class='getClass("random")' ng-click='update("random")') Random data
+				button.summary-button.btn(ng-class='getClass("real")' ng-click='update("real")') Real data

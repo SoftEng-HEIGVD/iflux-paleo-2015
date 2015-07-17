@@ -1,0 +1,87 @@
+.widget-container
+	h3 Facts
+
+	.widget.facts
+		table
+			tbody
+				tr
+					td.facts-label(colspan='3') Label
+					td.facts-label.facts-label-right Date
+					td.facts-label.facts-label-right Value
+
+				tr
+					td.col-1(rowspan='3').facts-title-label Total
+					td.col-2.facts-label Entries
+					td.col-3
+					td.col-4
+					td.col-5.facts-data {{ facts.total.entries }}
+				tr
+					td.facts-label Exits
+					td
+					td
+					td.facts-data {{ facts.total.exits }}
+				tr
+					td.facts-label Movements
+					td
+					td
+					td.facts-data {{ facts.total.movements }}
+
+				tr
+					td(rowspan='4').facts-title-label Entries
+					td(rowspan='2').facts-label Max
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.entries.maxDay.date }}
+					td.facts-data {{ facts.facts.entries.maxDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.entries.maxHour.date }}
+					td.facts-data {{ facts.facts.entries.maxHour.value }}
+				tr
+					td(rowspan='2').facts-label Min
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.entries.minDay.date }}
+					td.facts-data {{ facts.facts.entries.minDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.entries.minHour.date }}
+					td.facts-data {{ facts.facts.entries.minHour.value }}
+
+				tr
+					td(rowspan='4').facts-title-label Exits
+					td(rowspan='2').facts-label Max
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.exits.maxDay.date }}
+					td.facts-data {{ facts.facts.exits.maxDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.exits.maxHour.date }}
+					td.facts-data {{ facts.facts.exits.maxHour.value }}
+				tr
+					td(rowspan='2').facts-label Min
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.exits.minDay.date }}
+					td.facts-data {{ facts.facts.exits.minDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.exits.minHour.date }}
+					td.facts-data {{ facts.facts.exits.minHour.value }}
+
+				tr
+					td(rowspan='4').facts-title-label Movements#[br](car entries and exits)
+					td(rowspan='2').facts-label Max
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.movements.maxDay.date }}
+					td.facts-data {{ facts.facts.movements.maxDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.movements.maxHour.date }}
+					td.facts-data {{ facts.facts.movements.maxHour.value }}
+				tr
+					td(rowspan='2').facts-label Min
+					td.facts-sub-label Day
+					td.facts-data {{ facts.facts.movements.minDay.date }}
+					td.facts-data {{ facts.facts.movements.minDay.value }}
+				tr
+					td.facts-sub-label Hour
+					td.facts-data {{ facts.facts.movements.minHour.date }}
+					td.facts-data {{ facts.facts.movements.minHour.value }}

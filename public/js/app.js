@@ -13,11 +13,20 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
 	;
 });
 
-app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONTEXT_ROOT) {
+app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', '$rootScope', function($http, CONTEXT_ROOT, $rootScope) {
+  if (_.isUndefined($rootScope.mode)) {
+    $rootScope.mode = 'real';
+    $rootScope.timers = [];
+  }
+
+  function enrichUrl(url) {
+    return CONTEXT_ROOT +  url + ($rootScope.mode == 'real' ? '' : '&randomData=true');
+  }
+
 	return {
 		getEvolution: function (lastMinutes) {
 			return $http({
-				url: CONTEXT_ROOT + '/data/evolution?minutes=' + lastMinutes
+				url: enrichUrl('/data/evolution?minutes=' + lastMinutes)
 			})
 			.then(function (res) {
 				return res.data;
@@ -26,7 +35,7 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 
 		getTiles: function (type) {
 			return $http({
-				url: CONTEXT_ROOT + '/data/tiles?type=' + type
+				url: enrichUrl('/data/tiles?type=' + type)
 			})
 			.then(function (res) {
 				return res.data;
@@ -35,7 +44,7 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 
     getMovements: function (type) {
       return $http({
-        url: CONTEXT_ROOT + '/data/movements'
+        url: enrichUrl('/data/movements')
       })
       .then(function (res) {
         return res.data;
@@ -44,7 +53,16 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 
     getDaysAggregation: function(startDate, endDate) {
       return $http({
-        url: CONTEXT_ROOT + '/data/daysAggregation?startDate=' + startDate.format('YYYY-MM-DD') + '&endDate=' + endDate.format('YYYY-MM-DD')
+        url: enrichUrl('/data/daysAggregation?startDate=' + startDate.format('YYYY-MM-DD') + '&endDate=' + endDate.format('YYYY-MM-DD'))
+      })
+      .then(function(res) {
+          return res.data;
+      });
+    },
+
+    getFacts: function(startDate, endDate) {
+      return $http({
+        url: enrichUrl('/data/facts?startDate=' + startDate.format('YYYY-MM-DD') + '&endDate=' + endDate.format('YYYY-MM-DD'))
       })
       .then(function(res) {
           return res.data;
@@ -53,7 +71,7 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', function($http, CONT
 	}
 }]);
 
-app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory', function($scope, $stateParams, $interval, dataService) {
+app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory','$rootScope', function($scope, $stateParams, $interval, dataService, $rootScope) {
 	var config = {
     hour: {
       q: 60,
@@ -175,15 +193,15 @@ app.controller('GraphController', [ '$scope', '$stateParams', '$interval', 'Data
 		}
 	};
 
-	$interval(fn, 15000);
+	$rootScope.timers.push($interval(fn, 15000));
 
 	fn();
 }]);
 
 app.directive('paleoAreaGraph', [ function() {
-	var margin = {top: 20, right: 30, bottom: 60, left: 30},
+	var margin = {top: 5, right: 30, bottom: 40, left: 30},
 		width = 850 - margin.left - margin.right,
-		height = 500 - margin.top - margin.bottom;
+		height = 450 - margin.top - margin.bottom;
 
 	return {
 		restrict: 'E',
@@ -394,7 +412,7 @@ app.directive('paleoAreaGraph', [ function() {
 	};
 }]);
 
-app.controller('TilesController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory', function($scope, $stateParams, $interval, dataService) {
+app.controller('TilesController', [ '$scope', '$stateParams', '$interval', 'DataServiceFactory', '$rootScope', function($scope, $stateParams, $interval, dataService, $rootScope) {
 	$scope.hours = _.range(24);
 
 	var fn = function() {
@@ -453,7 +471,7 @@ app.controller('TilesController', [ '$scope', '$stateParams', '$interval', 'Data
 		}
 	};
 
-	$interval(fn, 60000);
+	$rootScope.timers.push($interval(fn, 60000));
 
 	fn();
 }]);
@@ -468,7 +486,7 @@ app.directive('paleoTiles', [ function() {
 	};
 }]);
 
-app.controller('PulsorController', [ '$scope', '$timeout', '$interval', 'DataServiceFactory', function($scope, $timeout, $interval, dataService) {
+app.controller('PulsorController', [ '$scope', '$timeout', '$interval', 'DataServiceFactory', '$rootScope', function($scope, $timeout, $interval, dataService, $rootScope) {
 	$scope.movements = {
     entries: 0,
     exits: 0
@@ -505,7 +523,7 @@ app.controller('PulsorController', [ '$scope', '$timeout', '$interval', 'DataSer
 		}
 	};
 
-	$interval(fn, 5000);
+	$rootScope.timers.push($interval(fn, 5000));
 
 	fn();
 }]);
@@ -520,7 +538,7 @@ app.directive('paleoPulsor', [ function() {
   };
 }]);
 
-app.controller('RoundController', [ '$scope', '$interval', 'DataServiceFactory', function($scope, $interval, dataService) {
+app.controller('RoundController', [ '$scope', '$interval', 'DataServiceFactory', '$rootScope', function($scope, $interval, dataService, $rootScope) {
   var endDate = moment();
   var startDate = moment(endDate).subtract(6, 'days');
 
@@ -534,7 +552,7 @@ app.controller('RoundController', [ '$scope', '$interval', 'DataServiceFactory',
 			});
 	};
 
-	$interval(fn, 60000);
+	$rootScope.timers.push($interval(fn, 60000));
 
 	fn();
 }]);
@@ -710,4 +728,139 @@ app.directive('paleoRounds', [function() {
       });
     }
   };
+}]);
+
+app.controller('FactsController', [ '$scope', '$interval', 'DataServiceFactory', '$rootScope', function($scope, $interval, dataService, $rootScope) {
+  var endDate = moment();
+  var startDate = moment(endDate).subtract(6, 'days');
+
+  $scope.facts = {
+    total: {
+      entries: '-',
+      exits: '-',
+      movements: '-'
+    },
+    facts: {
+      entries: {
+        maxDay: { date: '-', value: '-' },
+        minDay: { date: '-', value: '-' },
+        maxHour: { date: '-', value: '-' },
+        minHour: { date: '-', value: '-'}
+      },
+      exits: {
+        maxDay: { date: '-', value: '-' },
+        minDay: { date: '-', value: '-' },
+        maxHour: { date: '-', value: '-' },
+        minHour: { date: '-', value: '-' }
+      },
+      movements: {
+        maxDay: { date: '-', value: '-' },
+        minDay: { date: '-', value: '-' },
+        maxHour: { date: '-', value: '-' },
+        minHour: { date: '-', value: '-' }
+      }
+    }
+  };
+
+  var formatDayOut = 'DD.MM.YYYY';
+  var formatHourOut = 'DD.MM.YYYY h';
+  var hourSuffix = 'h';
+
+  function normalizeData(data, formatOut, suffix) {
+    if (data.date) {
+      return {
+        date: moment(data.date).format(formatOut) + (suffix ? suffix : ''),
+        value: data.value
+      };
+    }
+    else {
+      return {
+        date: '-',
+        value: '-'
+      }
+    }
+  }
+
+	var fn = function() {
+		dataService
+			.getFacts(startDate, endDate)
+			.then(function (data) {
+        console.log(data);
+
+        data.facts.entries.maxDay = normalizeData(data.facts.entries.maxDay, formatDayOut);
+        data.facts.entries.minDay = normalizeData(data.facts.entries.minDay, formatDayOut);
+        data.facts.entries.maxHour = normalizeData(data.facts.entries.maxHour, formatHourOut, hourSuffix);
+        data.facts.entries.minHour = normalizeData(data.facts.entries.minHour, formatHourOut, hourSuffix);
+
+        data.facts.exits.maxDay = normalizeData(data.facts.exits.maxDay, formatDayOut);
+        data.facts.exits.minDay = normalizeData(data.facts.exits.minDay, formatDayOut);
+        data.facts.exits.maxHour = normalizeData(data.facts.exits.maxHour, formatHourOut, hourSuffix);
+        data.facts.exits.minHour = normalizeData(data.facts.exits.minHour, formatHourOut, hourSuffix);
+
+        data.facts.movements.maxDay = normalizeData(data.facts.movements.maxDay, formatDayOut);
+        data.facts.movements.minDay = normalizeData(data.facts.movements.minDay, formatDayOut);
+        data.facts.movements.maxHour = normalizeData(data.facts.movements.maxHour, formatHourOut, hourSuffix);
+        data.facts.movements.minHour = normalizeData(data.facts.movements.minHour, formatHourOut, hourSuffix);
+
+        $scope.facts = data;
+			});
+	};
+
+	//$scope.getClass = function(type) {
+	//	if ($scope.type == type) {
+	//		return 'btn-success';
+	//	}
+	//	else {
+	//		return 'btn-primary';
+	//	}
+	//};
+
+	$rootScope.timers.push($interval(fn, 60000));
+
+	fn();
+}]);
+
+app.directive('paleoFacts', [ function() {
+	return {
+		restrict: 'E',
+    replace: true,
+    templateUrl: 'partials/widgets/facts',
+		controller: 'FactsController',
+    scope: {
+      facts: '='
+    }
+	};
+}]);
+
+app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interval', function($scope, $rootScope, $state, $interval) {
+	$scope.getClass = function(mode) {
+		if ($rootScope.mode == mode) {
+			return 'btn-success';
+		}
+		else {
+			return 'btn-primary';
+		}
+	};
+
+  $scope.update = function(mode) {
+    $rootScope.mode = mode;
+
+    _.each($rootScope.timers, function(timer) {
+      $interval.cancel(timer);
+    });
+
+    $rootScope.timers = [];
+
+    $state.go('main', {}, {reload: true});
+  };
+}]);
+
+app.directive('paleoSummary', [ function() {
+	return {
+		restrict: 'E',
+    replace: true,
+    templateUrl: 'partials/widgets/summary',
+		controller: 'SummaryController',
+    scope: {}
+	};
 }]);

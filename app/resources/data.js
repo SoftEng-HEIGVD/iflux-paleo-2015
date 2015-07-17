@@ -13,7 +13,7 @@ router.route('/evolution')
 		var minutes = req.query.minutes ? req.query.minutes : 90;
 
 		return dataService
-			.getEvolution(minutes)
+			.getEvolution(minutes, req.query.randomData)
 			.then(function(result) {
 				return res.status(200).json(result).end();
 			})
@@ -27,7 +27,7 @@ router.route('/tiles')
 		var minutes = req.query.type ? req.query.type : 'entries';
 
 		return dataService
-			.getTiles(minutes)
+			.getTiles(minutes, req.query.randomData)
 			.then(function(result) {
 				return res.status(200).json(result).end();
 			})
@@ -39,7 +39,7 @@ router.route('/tiles')
 router.route('/movements')
 	.get(function(req, res, next) {
 		return dataService
-			.getMovements()
+			.getMovements(req.query.randomData)
 			.then(function(result) {
 				return res.status(200).json(result).end();
 			})
@@ -54,7 +54,22 @@ router.route('/daysAggregation')
     var endDate = req.query.endDate ? req.query.endDate : '2015-07-26';
 
 		return dataService
-			.getDaysAggregation(startDate, endDate)
+			.getDaysAggregation(startDate, endDate, req.query.randomData)
+			.then(function(result) {
+				return res.status(200).json(result).end();
+			})
+			.error(function(err) {
+				return next(err);
+			})
+	});
+
+router.route('/facts')
+	.get(function(req, res, next) {
+    var startDate = req.query.startDate ? req.query.startDate : '2015-07-20';
+    var endDate = req.query.endDate ? req.query.endDate : '2015-07-26';
+
+		return dataService
+			.getFacts(startDate, endDate, req.query.randomData)
 			.then(function(result) {
 				return res.status(200).json(result).end();
 			})

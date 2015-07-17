@@ -99,6 +99,25 @@ AnalyticsProvider.prototype.getFacets = function (measure) {
   var ts = moment(measure.timestamp).tz(this.timeZone);
 
   facets.push({
+    collection: 'metrics.' + measure.metric + '.yearly',
+    header: {
+      metric: measure.metric,
+      facet: 'yearly',
+      startDate: moment(ts).startOf('year').toDate(),
+      endDate: moment(ts).endOf('year').toDate(),
+      timeZone: this.timeZone
+    },
+    levels: [
+      {
+        position: 'total'
+      },
+      {
+        position: 'monthly.' + ts.month()
+      }
+    ]
+  });
+
+  facets.push({
     collection: 'metrics.' + measure.metric + '.daily',
     header: {
       metric: measure.metric,
@@ -214,7 +233,7 @@ AnalyticsProvider.prototype.reportMeasure = function (measure) {
   }
 };
 
-AnalyticsProvider.prototype.getMetrics = function (metric, granularity, timestamp, endDate) {
+AnalyticsProvider.prototype.getMetrics = function (metric, granularity, startDate, endDate) {
   var collectionName = 'metrics.' + metric + '.' + granularity;
   var startOf;
 
@@ -239,14 +258,20 @@ AnalyticsProvider.prototype.getMetrics = function (metric, granularity, timestam
 	    startOf = 'day';
 	    selectedFields.hourly = 1;
 	    break;
+    case 'yearly':
+ 	    startOf = 'year';
+ 	    selectedFields.monthly = 1;
+ 	    break;
   }
 
-  var filter = {
-    "header.startDate": { $gte: moment(timestamp).tz(this.timeZone).toDate() }
-  };
+  var filter = {};
+
+  if (startDate) {
+    filter["header.startDate"] = { $gte: moment(startDate).tz(this.timeZone).toDate() };
+  }
 
   if (endDate) {
-    filter['header.endDate'] = { $lte: moment(endDate).tz(this.timeZone).toDate() }
+    filter['header.endDate'] = { $lte: moment(endDate).tz(this.timeZone).toDate() };
   }
 
 	// TODO: See what we want to log exactly

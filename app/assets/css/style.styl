@@ -33,7 +33,7 @@ h1, p
     display flex
 
     .title-center
-      margin 5px 25px
+      margin 0 20px
       flex 1
 
       p
@@ -88,6 +88,18 @@ h1, p
   margin 0 10px
   display flex
 
+  .widget-row
+    flex-direction row
+    display flex
+
+    .widget-col-3
+      display flex
+      flex 3
+
+    .widget-col-1
+      display flex
+      flex 1
+
   .widget-layout-left
     flex 3
 
@@ -105,10 +117,12 @@ h1, p
   display flex
   margin 5px
 
+
   h3
     border-bottom 1px solid black
     background-color rgba(11, 58, 81, 0.93)
     text-align center
+    font-size 1.3em
     padding 10px 0
     color #fff
     margin 0
@@ -145,7 +159,7 @@ h1, p
 
 .graph
   height 0
-  padding-top 58.82% /* 500px/850px */
+  padding-top 56.25% /* 450px/850px */
   position relative
 
   svg
@@ -278,17 +292,32 @@ pulsorColors = {
   red: hsl(350, 100%, 55%)
 }
 
+.summary
+  flex-direction column
+  align-self stretch
+  display flex
+
+  .summary-buttons
+    margin-top 15px
+    display flex
+
+    .summary-button
+      flex 1
+
 shadow($b, $s, $sm, $c)
   box-shadow: 0 0 8px 6px $c, 0 0 $b $s pulsorBackgroundColor, 0 0 $b $s + $sm $c
 
 .pulsors
   justify-content center
-  //margin-top 5px
-  display flex
   padding 0 !important
   margin 0 !important
+  align-self stretch
+  display flex
+  height 100%
 
   table
+    height 100%
+
     th
       text-align center
       font-weight bold
@@ -343,6 +372,68 @@ shadow($b, $s, $sm, $c)
   text.value
     font-weight bold
     font-size 12px
+
+.facts
+  padding 5px !important
+  overflow auto
+  display flex
+
+  table
+    width 100%
+
+    tr:last-of-type
+      border-bottom none
+
+    tr
+      border-bottom 1px solid black
+
+      td.col-1
+        width 30%
+
+      td.col-2
+        width 10%
+
+      td.col-3
+        width 10%
+
+      td.col-4
+        width 25%
+
+      td.col-5
+        width 25%
+
+      td
+        padding 3px
+
+      td.facts-separator
+        text-align center
+        font-weight bold
+        font-size 14px
+
+      td.facts-title-label
+        vertical-align middle
+        font-weight bold
+        font-size 15px
+
+      td.facts-label
+        vertical-align middle
+        font-weight bold
+        font-size 14px
+
+      td.facts-label-right
+        text-align right
+
+      td.facts-sub-label
+        vertical-align middle
+        font-weight bold
+        font-size 13px
+
+      td.facts-data
+        vertical-align middle
+        front-weight bold
+        text-align right
+        font-size 12px
+
 
 @keyframes pulsor-keyframes-1
   0%
@@ -401,6 +492,16 @@ shadow($b, $s, $sm, $c)
 
     table
       margin auto
+
+@media(max-width 700px)
+  .widget-row
+    flex-direction column !important
+
+    .widget-col-1
+      display block !important
+
+    .widget-col-3
+      display block !important
 
 @media(max-width 550px)
   .layout-header

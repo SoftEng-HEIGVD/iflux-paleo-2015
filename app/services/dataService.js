@@ -56,7 +56,7 @@ module.exports = {
     }
   },
 
-	getEvolution: function(minutes) {
+	getEvolution: function(minutes, randomData) {
 		var endDate;
     var startDate;
 
@@ -88,7 +88,7 @@ module.exports = {
 				return memo;
 			});
 
-		if (config.app.randomData) {
+		if (randomData) {
 			promise = promise
 				.then(function(memo) {
 					memo.nbCarsIn =  randomInt(150, 250);
@@ -226,12 +226,12 @@ module.exports = {
 			});
 	},
 
-	getTiles: function(type) {
+	getTiles: function(type, randomData) {
 		var days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 		var promise = Promise.resolve({});
 
-		if (config.app.randomData) {
+		if (randomData) {
 			promise = promise
 				.then(function(memo) {
 
@@ -380,10 +380,10 @@ module.exports = {
 		return promise;
 	},
 
-  getMovements: function() {
+  getMovements: function(randomData) {
     var promise = Promise.resolve();
 
-    if (config.app.randomData) {
+    if (randomData) {
       promise = promise.then(function() {
         return {
           entries: randomInt(0, 10),
@@ -400,14 +400,14 @@ module.exports = {
     return promise;
   },
 
-  getDaysAggregation: function(startDate, endDate) {
+  getDaysAggregation: function(startDate, endDate, randomData) {
     var startDateMoment = moment(startDate + ' 00:00:00', 'YYYY-MM-DD HH:mm:ss');
     var endDateMoment = moment(endDate + ' 23:59:59', 'YYYY-MM-DD HH:mm:ss');
     var diffDurationInDays = endDateMoment.diff(startDateMoment, 'days');
 
     var promise = Promise.resolve();
 
-    if (config.app.randomData) {
+    if (randomData) {
       promise = promise.then(function() {
         var result = [];
 
@@ -518,6 +518,265 @@ module.exports = {
           finalResult.push(totalCars, totalMovements);
 
           return finalResult;
+        });
+    }
+
+    return promise;
+  },
+
+  getFacts: function(start, end, randomData) {
+    var startDate = moment(start + ' 00:00:00.000Z');
+    var endDate = moment(end + ' 23:59:59.999Z');
+
+    var promise = Promise.resolve();
+
+    if (randomData) {
+      promise = promise.then(function() {
+        return {
+          total: {
+            entries: randomInt(1500, 10000),
+            exits: randomInt(1500, 10000),
+            movements: randomInt(3000, 20000)
+          },
+          facts: {
+            entries: {
+              maxDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              maxHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              }
+            },
+            exits: {
+              maxDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              maxHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              }
+            },
+            movements: {
+              maxDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minDay: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              maxHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              },
+              minHour: {
+                date: randomDate(startDate.toDate(), endDate.toDate()),
+                value: randomInt(1000, 1500)
+              }
+            }
+          }
+        };
+      });
+    }
+    else {
+      promise = promise
+        .then(function() {
+          return {
+            total: {},
+            facts: {
+              entries: {},
+              exits: {},
+              movements: {}
+            }
+          };
+        })
+
+        .then(function (stats) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'yearly')
+            .then(function(entries) {
+              stats.total.entries = 0;
+
+              _.each(entries, function(metric) {
+                stats.total.entries += metric.total.sum;
+              });
+
+              return stats;
+            });
+        })
+
+        .then(function (stats) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'yearly')
+            .then(function(exits) {
+              stats.total.exits = 0;
+
+              _.each(exits, function(metric) {
+                stats.total.exits += metric.total.sum;
+              });
+
+              return stats;
+            });
+        })
+
+        .then(function(stats) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'daily', startDate, endDate)
+            .then(function(entries) {
+              // Analyze daily
+              var
+                max = 0, min = Number.MAX_SAFE_INTEGER, maxDate = undefined, minDate = undefined,
+                maxHour = 0, minHour = Number.MAX_SAFE_INTEGER, maxHourDate = undefined, minHourDate = undefined;
+              _.each(entries, function(dailyEntry) {
+                if (dailyEntry.total.sum > max) {
+                  max = dailyEntry.total.sum;
+                  maxDate = moment(dailyEntry.header.startDate);
+                }
+
+                if (dailyEntry.total.sum < min) {
+                  min = dailyEntry.total.sum;
+                  minDate = moment(dailyEntry.header.startDate);
+                }
+
+                for (var i = 0; i < 24; i++) {
+                  if (dailyEntry.hourly[i]) {
+                    if (dailyEntry.hourly[i].sum > maxHour) {
+                      maxHour = dailyEntry.hourly[i].sum;
+                      maxHourDate = moment(dailyEntry.header.startDate).add(i, 'hours');
+                    }
+
+                    if (dailyEntry.hourly[i].sum < minHour) {
+                      minHour = dailyEntry.hourly[i].sum;
+                      minHourDate = moment(dailyEntry.header.startDate).add(i, 'hours');
+                    }
+                  }
+                }
+              });
+
+              stats.facts.entries = {
+                maxDay: { date: maxDate ? maxDate.toDate() : '', value: max },
+                minDay: { date: minDate ? minDate.toDate() : '', value: min == Number.MAX_SAFE_INTEGER ? 0 : min },
+                maxHour: { date: maxHourDate ? maxHourDate.toDate() : '', value: maxHour },
+                minHour: { date: minHourDate ? minHourDate.toDate() : '', value: minHour == Number.MAX_SAFE_INTEGER ? 0 : minHour}
+              };
+
+              return stats;
+            });
+        })
+
+        .then(function(stats) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'daily', startDate, endDate)
+            .then(function(exits) {
+              // Analyze daily
+              var
+                max = 0, min = Number.MAX_SAFE_INTEGER, maxDate = undefined, minDate = undefined,
+                maxHour = 0, minHour = Number.MAX_SAFE_INTEGER, maxHourDate = undefined, minHourDate = undefined;
+              _.each(exits, function(dailyExit) {
+                if (dailyExit.total.sum > max) {
+                  max = dailyExit.total.sum;
+                  maxDate = moment(dailyExit.header.startDate);
+                }
+
+                if (dailyExit.total.sum < min) {
+                  min = dailyExit.total.sum;
+                  minDate = moment(dailyExit.header.startDate)
+                }
+
+                for (var i = 0; i < 24; i++) {
+                  if (dailyExit.hourly[i]) {
+                    if (dailyExit.hourly[i].sum > maxHour) {
+                      maxHour = dailyExit.hourly[i].sum;
+                      maxHourDate = moment(dailyExit.header.startDate).add(i, 'hours');
+                    }
+
+                    if (dailyExit.hourly[i].sum < minHour) {
+                      minHour = dailyExit.hourly[i].sum;
+                      minHourDate = moment(dailyExit.header.startDate).add(i, 'hours');
+                    }
+                  }
+                }
+              });
+
+              stats.facts.exits = {
+                maxDay: { date: maxDate ? maxDate.toDate() : '', value: max },
+                minDay: { date: minDate ? minDate.toDate() : '', value: min == Number.MAX_SAFE_INTEGER ? 0 : min },
+                maxHour: { date: maxHourDate ? maxHourDate.toDate() : '', value: maxHour },
+                minHour: { date: minHourDate ? minHourDate.toDate() : '', value: minHour == Number.MAX_SAFE_INTEGER ? 0 : minHour}
+              };
+
+              return stats;
+            });
+        })
+
+        .then(function(stats) {
+          return analyticsProvider
+            .getMetrics('ch.heigvd.iflux.paleo2015.movements', 'daily', startDate, endDate)
+            .then(function(movements) {
+              // Analyze daily
+              var
+                max = 0, min = Number.MAX_SAFE_INTEGER, maxDate = undefined, minDate = undefined,
+                maxHour = 0, minHour = Number.MAX_SAFE_INTEGER, maxHourDate = undefined, minHourDate = undefined;
+              _.each(movements, function(dailyMovement) {
+                if (dailyMovement.total.sum > max) {
+                  max = dailyMovement.total.sum;
+                  maxDate = moment(dailyMovement.header.startDate);
+                }
+
+                if (dailyMovement.total.sum < min) {
+                  min = dailyMovement.total.sum;
+                  minDate = moment(dailyMovement.header.startDate);
+                }
+
+                for (var i = 0; i < 24; i++) {
+                  if (dailyMovement.hourly[i]) {
+                    if (dailyMovement.hourly[i].sum > maxHour) {
+                      maxHour = dailyMovement.hourly[i].sum;
+                      maxHourDate = moment(dailyMovement.header.startDate).add(i, 'hours');
+                    }
+
+                    if (dailyMovement.hourly[i].sum < minHour) {
+                      minHour = dailyMovement.hourly[i].sum;
+                      minHourDate = moment(dailyMovement.header.startDate).add(i, 'hours');
+                    }
+                  }
+                }
+              });
+
+              stats.facts.movements = {
+                maxDay: { date: maxDate ? maxDate.toDate() : '', value: max },
+                minDay: { date: minDate ? minDate.toDate() : '', value: min == Number.MAX_SAFE_INTEGER ? 0 : min },
+                maxHour: { date: maxHourDate ? maxHourDate.toDate() : '', value: maxHour },
+                minHour: { date: minHourDate ? minHourDate.toDate() : '', value: minHour == Number.MAX_SAFE_INTEGER ? 0 : minHour}
+              };
+
+              return stats;
+            });
+        })
+
+        .then(function(stats) {
+          stats.total.movements = stats.total.entries + stats.total.exits;
+
+          return stats;
         });
     }
 
