@@ -61,12 +61,12 @@ module.exports = {
     var startDate;
 
     if (minutes == 'paleo') {
-      endDate = moment('2015-07-27');
-      startDate = moment(endDate).subtract(7, 'days');
+      endDate = moment('2015-07-27').tz(analyticsProvider.timeZone);
+      startDate = moment(endDate).tz(analyticsProvider.timeZone).subtract(7, 'days');
     }
     else {
-      endDate = moment();
-      startDate = moment(endDate).subtract(minutes, 'minutes');
+      endDate = moment().tz(analyticsProvider.timeZone);
+      startDate = moment(endDate).tz(analyticsProvider.timeZone).subtract(minutes, 'minutes');
     }
 
 		var promise = Promise
@@ -152,7 +152,7 @@ module.exports = {
 						.getMetrics('ch.heigvd.iflux.paleo2015.entries', 'minutely', startDate)
 						.then(function (metrics) {
 							_.each(metrics, function (metric) {
-								var calcDate = moment(endDate).subtract(moment(metric.header.startDate));
+								var calcDate = moment(endDate).subtract(moment(metric.header.startDate).tz(analyticsProvider.timeZone));
 								var idx = nbSamples - Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
 
 								if (!memo.carsIn[idx]) {
@@ -187,7 +187,7 @@ module.exports = {
 						.getMetrics('ch.heigvd.iflux.paleo2015.exits', 'minutely', startDate)
 						.then(function (metrics) {
 							_.each(metrics, function (metric) {
-								var calcDate = moment(endDate).subtract(moment(metric.header.startDate));
+								var calcDate = moment(endDate).subtract(moment(metric.header.startDate).tz(analyticsProvider.timeZone));
 								var idx = nbSamples - Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
 
 								if (!memo.carsOut[idx]) {
@@ -258,7 +258,7 @@ module.exports = {
       if (type != 'total') {
         promise = promise
           .then(function (memo) {
-            var endDate = moment().hour(23).minute(59).second(59).millisecond(999);
+            var endDate = moment().tz(analyticsProvider.timeZone).hour(23).minute(59).second(59).millisecond(999);
             var startDate = moment(endDate).subtract(7, 'days').hour(0).minute(0).second(0).millisecond(0);
 
             return analyticsProvider
@@ -268,7 +268,7 @@ module.exports = {
                 var max = 0;
 
                 _.each(metrics, function (metric) {
-                  var date = moment(metric.header.startDate);
+                  var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone);
                   var dayNumber = date.day();
                   memo[countDays] = {day: days[dayNumber], values: []};
 
@@ -293,7 +293,7 @@ module.exports = {
           });
       }
       else {
-        var endDate = moment();
+        var endDate = moment().tz(analyticsProvider.timeZone);
         var startDate = moment(endDate).subtract(7, 'days');
 
         promise = promise
@@ -305,7 +305,7 @@ module.exports = {
                 var result = {};
 
                 _.each(entries, function (metric) {
-                  var date = moment(metric.header.startDate);
+                  var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone);
                   var dayNumber = date.day();
                   result[countDays] = {day: days[dayNumber], values: []};
 
@@ -334,7 +334,7 @@ module.exports = {
                 var result = {};
 
                 _.each(exits, function (metric) {
-                  var date = moment(metric.header.startDate);
+                  var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone);
                   var dayNumber = date.day();
                   result[countDays] = {day: days[dayNumber], values: []};
 
@@ -401,8 +401,8 @@ module.exports = {
   },
 
   getDaysAggregation: function(startDate, endDate, randomData) {
-    var startDateMoment = moment(startDate, 'YYYY-MM-DD').hour(0).minute(0).second(0).millisecond(0);
-    var endDateMoment = moment(endDate, 'YYYY-MM-DD').hour(23).minute(59).second(59).millisecond(999);
+    var startDateMoment = moment(startDate, 'YYYY-MM-DD').tz(analyticsProvider.timeZone).hour(0).minute(0).second(0).millisecond(0);
+    var endDateMoment = moment(endDate, 'YYYY-MM-DD').tz(analyticsProvider.timeZone).hour(23).minute(59).second(59).millisecond(999);
     var diffDurationInDays = endDateMoment.diff(startDateMoment, 'days');
 
     var promise = Promise.resolve();
@@ -457,7 +457,7 @@ module.exports = {
               };
 
               _.each(entries, function(metric) {
-                var metricDate = moment(metric.header.startDate);
+                var metricDate = moment(metric.header.startDate).tz(analyticsProvider.timeZone);
                 var diffDate = metricDate.diff(startDateMoment, 'days');
                 result.values[diffDate] = metric.total.sum;
               });
@@ -483,7 +483,7 @@ module.exports = {
               };
 
               _.each(exits, function(metric) {
-                var metricDate = moment(metric.header.startDate);
+                var metricDate = moment(metric.header.startDate).tz(analyticsProvider.timeZone);
                 var diffDate = metricDate.diff(startDateMoment, 'days');
                 result.values[diffDate] = metric.total.sum;
               });
@@ -525,8 +525,8 @@ module.exports = {
   },
 
   getFacts: function(start, end, randomData) {
-    var startDate = moment(start).hour(0).minute(0).second(0).millisecond(0);
-    var endDate = moment(end).hour(23).minute(59).second(59).millisecond(999);
+    var startDate = moment(start).tz(analyticsProvider.timeZone).hour(0).minute(0).second(0).millisecond(0);
+    var endDate = moment(end).tz(analyticsProvider.timeZone).hour(23).minute(59).second(59).millisecond(999);
 
     var promise = Promise.resolve();
 
@@ -649,24 +649,24 @@ module.exports = {
               _.each(entries, function(dailyEntry) {
                 if (dailyEntry.total.sum > max) {
                   max = dailyEntry.total.sum;
-                  maxDate = moment(dailyEntry.header.startDate);
+                  maxDate = moment(dailyEntry.header.startDate).tz(analyticsProvider.timeZone);
                 }
 
                 if (dailyEntry.total.sum < min) {
                   min = dailyEntry.total.sum;
-                  minDate = moment(dailyEntry.header.startDate);
+                  minDate = moment(dailyEntry.header.startDate).tz(analyticsProvider.timeZone);
                 }
 
                 for (var i = 0; i < 24; i++) {
                   if (dailyEntry.hourly[i]) {
                     if (dailyEntry.hourly[i].sum > maxHour) {
                       maxHour = dailyEntry.hourly[i].sum;
-                      maxHourDate = moment(dailyEntry.header.startDate).add(i, 'hours');
+                      maxHourDate = moment(dailyEntry.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
 
                     if (dailyEntry.hourly[i].sum < minHour) {
                       minHour = dailyEntry.hourly[i].sum;
-                      minHourDate = moment(dailyEntry.header.startDate).add(i, 'hours');
+                      minHourDate = moment(dailyEntry.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
                   }
                 }
@@ -694,24 +694,24 @@ module.exports = {
               _.each(exits, function(dailyExit) {
                 if (dailyExit.total.sum > max) {
                   max = dailyExit.total.sum;
-                  maxDate = moment(dailyExit.header.startDate);
+                  maxDate = moment(dailyExit.header.startDate).tz(analyticsProvider.timeZone);
                 }
 
                 if (dailyExit.total.sum < min) {
                   min = dailyExit.total.sum;
-                  minDate = moment(dailyExit.header.startDate)
+                  minDate = moment(dailyExit.header.startDate).tz(analyticsProvider.timeZone)
                 }
 
                 for (var i = 0; i < 24; i++) {
                   if (dailyExit.hourly[i]) {
                     if (dailyExit.hourly[i].sum > maxHour) {
                       maxHour = dailyExit.hourly[i].sum;
-                      maxHourDate = moment(dailyExit.header.startDate).add(i, 'hours');
+                      maxHourDate = moment(dailyExit.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
 
                     if (dailyExit.hourly[i].sum < minHour) {
                       minHour = dailyExit.hourly[i].sum;
-                      minHourDate = moment(dailyExit.header.startDate).add(i, 'hours');
+                      minHourDate = moment(dailyExit.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
                   }
                 }
@@ -739,24 +739,24 @@ module.exports = {
               _.each(movements, function(dailyMovement) {
                 if (dailyMovement.total.sum > max) {
                   max = dailyMovement.total.sum;
-                  maxDate = moment(dailyMovement.header.startDate);
+                  maxDate = moment(dailyMovement.header.startDate).tz(analyticsProvider.timeZone);
                 }
 
                 if (dailyMovement.total.sum < min) {
                   min = dailyMovement.total.sum;
-                  minDate = moment(dailyMovement.header.startDate);
+                  minDate = moment(dailyMovement.header.startDate).tz(analyticsProvider.timeZone);
                 }
 
                 for (var i = 0; i < 24; i++) {
                   if (dailyMovement.hourly[i]) {
                     if (dailyMovement.hourly[i].sum > maxHour) {
                       maxHour = dailyMovement.hourly[i].sum;
-                      maxHourDate = moment(dailyMovement.header.startDate).add(i, 'hours');
+                      maxHourDate = moment(dailyMovement.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
 
                     if (dailyMovement.hourly[i].sum < minHour) {
                       minHour = dailyMovement.hourly[i].sum;
-                      minHourDate = moment(dailyMovement.header.startDate).add(i, 'hours');
+                      minHourDate = moment(dailyMovement.header.startDate).tz(analyticsProvider.timeZone).add(i, 'hours');
                     }
                   }
                 }
