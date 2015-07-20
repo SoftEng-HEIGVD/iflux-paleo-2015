@@ -258,8 +258,8 @@ module.exports = {
       if (type != 'total') {
         promise = promise
           .then(function (memo) {
-            var endDate = moment();
-            var startDate = moment(endDate).subtract(7, 'days');
+            var endDate = moment().hour(23).minute(59).second(59).millisecond(999);
+            var startDate = moment(endDate).subtract(7, 'days').hour(0).minute(0).second(0).millisecond(0);
 
             return analyticsProvider
               .getMetrics('ch.heigvd.iflux.paleo2015.' + type, 'daily', startDate)
@@ -401,8 +401,8 @@ module.exports = {
   },
 
   getDaysAggregation: function(startDate, endDate, randomData) {
-    var startDateMoment = moment(startDate + ' 00:00:00', 'YYYY-MM-DD HH:mm:ss');
-    var endDateMoment = moment(endDate + ' 23:59:59', 'YYYY-MM-DD HH:mm:ss');
+    var startDateMoment = moment(startDate, 'YYYY-MM-DD').hour(0).minute(0).second(0).millisecond(0);
+    var endDateMoment = moment(endDate, 'YYYY-MM-DD').hour(23).minute(59).second(59).millisecond(999);
     var diffDurationInDays = endDateMoment.diff(startDateMoment, 'days');
 
     var promise = Promise.resolve();
@@ -525,8 +525,8 @@ module.exports = {
   },
 
   getFacts: function(start, end, randomData) {
-    var startDate = moment(start + ' 00:00:00.000Z');
-    var endDate = moment(end + ' 23:59:59.999Z');
+    var startDate = moment(start).hour(0).minute(0).second(0).millisecond(0);
+    var endDate = moment(end).hour(23).minute(59).second(59).millisecond(999);
 
     var promise = Promise.resolve();
 

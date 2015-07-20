@@ -625,7 +625,7 @@ app.directive('paleoRounds', [function() {
               return 'Today';
             }
             else {
-              return -res;
+              return -res + 1;
             }
           })
           .ticks($scope.nbDays);
@@ -731,8 +731,8 @@ app.directive('paleoRounds', [function() {
 }]);
 
 app.controller('FactsController', [ '$scope', '$interval', 'DataServiceFactory', '$rootScope', function($scope, $interval, dataService, $rootScope) {
-  var endDate = moment();
-  var startDate = moment(endDate).subtract(6, 'days');
+  var endDate = moment().hour(23).minute(59).second(59).millisecond(999);
+  var startDate = moment(endDate).subtract(7, 'days').hour(0).minute(0).second(0).millisecond(0);
 
   $scope.facts = {
     total: {
