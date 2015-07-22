@@ -274,15 +274,23 @@ module.exports = {
                 }
 
                 _.each(metrics, function (metric) {
-                  var date = moment(metric.header.startDate).startOf('day');
-                  var idx = moment(date).diff(moment(startDate), 'days');
+                  var date = moment(metric.header.startDate).startOf('day').format(STD_FORMAT_DATE);
 
-                  for (var i = 0; i < 24; i++) {
-                    if (metric.hourly && metric.hourly[i]) {
-                      result[idx].values[i] = metric.hourly[i].sum;
+                  var idx =_.reduce(result, function(memo, val, index) {
+                    if (val.day == date) {
+                      memo = index;
+                    }
+                    return memo;
+                  }, -1);
 
-                      if (result[idx].values[i] > max) {
-                        max = result[idx].values[i];
+                  if (idx > -1) {
+                    for (var i = 0; i < 24; i++) {
+                      if (metric.hourly && metric.hourly[i]) {
+                        result[idx].values[i] = metric.hourly[i].sum;
+
+                        if (result[idx].values[i] > max) {
+                          max = result[idx].values[i];
+                        }
                       }
                     }
                   }
@@ -312,12 +320,20 @@ module.exports = {
                 }
 
                 _.each(entries, function (metric) {
-                  var date = moment(metric.header.startDate).startOf('day');
-                  var idx = moment(date).diff(moment(startDate), 'days');
+                  var date = moment(metric.header.startDate).startOf('day').format(STD_FORMAT_DATE);
 
-                  for (var i = 0; i < 24; i++) {
-                    if (metric.hourly && metric.hourly[i]) {
-                      result[idx].values[i] = metric.hourly[i].sum;
+                  var idx =_.reduce(result, function(memo, val, index) {
+                    if (val.day == date) {
+                      memo = index;
+                    }
+                    return memo;
+                  }, -1);
+
+                  if (idx > -1) {
+                    for (var i = 0; i < 24; i++) {
+                      if (metric.hourly && metric.hourly[i]) {
+                        result[idx].values[i] = metric.hourly[i].sum;
+                      }
                     }
                   }
                 });
@@ -341,12 +357,20 @@ module.exports = {
                 }
 
                 _.each(exits, function (metric) {
-                  var date = moment(metric.header.startDate).startOf('day');
-                  var idx = moment(date).diff(moment(startDate), 'days');
+                  var date = moment(metric.header.startDate).startOf('day').format(STD_FORMAT_DATE);
 
-                  for (var i = 0; i < 24; i++) {
-                    if (metric.hourly && metric.hourly[i]) {
-                      result[idx].values[i] = metric.hourly[i].sum;
+                  var idx =_.reduce(result, function(memo, val, index) {
+                    if (val.day == date) {
+                      memo = index;
+                    }
+                    return memo;
+                  }, -1);
+
+                  if (idx > -1) {
+                    for (var i = 0; i < 24; i++) {
+                      if (metric.hourly && metric.hourly[i]) {
+                        result[idx].values[i] = metric.hourly[i].sum;
+                      }
                     }
                   }
                 });
