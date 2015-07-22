@@ -274,10 +274,7 @@ module.exports = {
                 }
 
                 _.each(metrics, function (metric) {
-                  console.log('---------------------------');
-                  console.log(metric.header.startDate);
                   var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone).startOf('day').format(STD_FORMAT_DATE);
-                  console.log(date);
 
                   var idx =_.reduce(result, function(memo, val, index) {
                     if (val.day == date) {
@@ -323,7 +320,7 @@ module.exports = {
                 }
 
                 _.each(entries, function (metric) {
-                  var date = moment(metric.header.startDate).startOf('day').format(STD_FORMAT_DATE);
+                  var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone).startOf('day').format(STD_FORMAT_DATE);
 
                   var idx =_.reduce(result, function(memo, val, index) {
                     if (val.day == date) {
@@ -360,7 +357,7 @@ module.exports = {
                 }
 
                 _.each(exits, function (metric) {
-                  var date = moment(metric.header.startDate).startOf('day').format(STD_FORMAT_DATE);
+                  var date = moment(metric.header.startDate).tz(analyticsProvider.timeZone).startOf('day').format(STD_FORMAT_DATE);
 
                   var idx =_.reduce(result, function(memo, val, index) {
                     if (val.day == date) {
