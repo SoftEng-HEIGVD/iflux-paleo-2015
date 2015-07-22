@@ -267,11 +267,11 @@ AnalyticsProvider.prototype.getMetrics = function (metric, granularity, startDat
   var filter = {};
 
   if (startDate) {
-    filter["header.startDate"] = { $gte: moment(startDate).tz(this.timeZone).toDate() };
+    filter["header.startDate"] = { $gte: startDate.toDate() };
   }
 
   if (endDate) {
-    filter['header.endDate'] = { $lte: moment(endDate).tz(this.timeZone).toDate() };
+    filter['header.endDate'] = { $lte: endDate.toDate() };
   }
 
 	// TODO: See what we want to log exactly

@@ -61,8 +61,8 @@ module.exports = {
     var startDate;
 
     if (minutes == 'paleo') {
-      endDate = moment('2015-07-27').tz(analyticsProvider.timeZone);
-      startDate = moment(endDate).tz(analyticsProvider.timeZone).subtract(7, 'days');
+      endDate = moment('2015-07-26').hour(23).minute(59).second(59).millisecond(999).tz(analyticsProvider.timeZone);
+      startDate = moment(endDate).tz(analyticsProvider.timeZone).subtract(6, 'days').hour(0).minute(0).second(0).millisecond(0);
     }
     else {
       endDate = moment().tz(analyticsProvider.timeZone);
@@ -147,21 +147,22 @@ module.exports = {
 			promise = promise
 				.then(function (memo) {
 					var nbSamples = memo.scale.max / memo.scale.granularity;
+          var ratio = nbSamples / memo.scale.max;
 
 					return analyticsProvider
-						.getMetrics('ch.heigvd.iflux.paleo2015.entries', 'minutely', startDate)
+						.getMetrics('ch.heigvd.iflux.paleo2015.entries', 'minutely', startDate, endDate)
 						.then(function (metrics) {
+              console.log(metrics.length);
 							_.each(metrics, function (metric) {
-								var calcDate = moment(endDate).subtract(moment(metric.header.startDate).tz(analyticsProvider.timeZone));
-								var idx = nbSamples - Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
+                var diffDateInMilliseconds = moment(metric.header.startDate).tz(analyticsProvider.timeZone).diff(startDate);
+                var idx = Math.floor(ratio * moment.duration(diffDateInMilliseconds).asMinutes());
 
-								if (!memo.carsIn[idx]) {
-									memo.carsIn[idx] = 0;
-								}
-
-								memo.carsIn[idx] += _.reduce(metric.secondly, function (memo, second) {
-									return memo + second.sum;
-								}, 0);
+                if (memo.carsIn[idx]) {
+                  memo.carsIn[idx] += metric.total.sum;
+                }
+                else {
+                  memo.carsIn[idx] = metric.total.sum;
+                }
 							});
 
 							for (var i = 0; i < nbSamples; i++) {
@@ -182,21 +183,21 @@ module.exports = {
 
 				.then(function (memo) {
 					var nbSamples = memo.scale.max / memo.scale.granularity;
+          var ratio = nbSamples / memo.scale.max;
 
 					return analyticsProvider
 						.getMetrics('ch.heigvd.iflux.paleo2015.exits', 'minutely', startDate)
 						.then(function (metrics) {
 							_.each(metrics, function (metric) {
-								var calcDate = moment(endDate).subtract(moment(metric.header.startDate).tz(analyticsProvider.timeZone));
-								var idx = nbSamples - Math.floor(moment.duration(calcDate).asMinutes() / memo.scale.granularity);
+                var diffDateInMilliseconds = moment(metric.header.startDate).tz(analyticsProvider.timeZone).diff(startDate);
+								var idx = Math.floor(ratio * moment.duration(diffDateInMilliseconds).asMinutes());
 
-								if (!memo.carsOut[idx]) {
-									memo.carsOut[idx] = 0;
+								if (memo.carsOut[idx]) {
+									memo.carsOut[idx] += metric.total.sum;
 								}
-
-								memo.carsOut[idx] += _.reduce(metric.secondly, function (memo, second) {
-									return memo + second.sum;
-								}, 0);
+                else {
+                  memo.carsOut[idx] = metric.total.sum;
+                }
 							});
 
 							for (var i = 0; i < nbSamples; i++) {

@@ -270,29 +270,34 @@ app.directive('paleoAreaGraph', [ function() {
 					//.ticks($scope.ticks)
 					.tickValues(ticks)
 					.tickFormat(function (d) {
-						var str = '-';
+            var max = (ticks[ticks.length - 1] * $scope.granularity);
+            var cur = d * $scope.granularity;
+            var duration = moment.duration((max - cur) * 60000);
 
-						var max = (ticks[ticks.length - 1] * $scope.granularity);
-						var cur = d * $scope.granularity;
-						var duration = moment.duration((max - cur) * 60000);
+						if ($scope.graphTypeName == 'paleo') {
+              str = (27 - duration.days()) + '.07.15';
+            }
+            else {
+              var str = '-';
 
-						if (duration.days() > 1 || (duration.days() == 1 && $scope.graphTypeName == 'paleo')) {
-							str += duration.days() + 'd ';
-						}
-						else if (duration.days() == 1) {
-							str += '24h';
-						}
+  						if (duration.days() > 1) {
+  							str += duration.days() + 'd ';
+  						}
+  						else if (duration.days() == 1) {
+  							str += '24h';
+  						}
 
-						if (duration.hours() > 0) {//} || str.length > 0) {
-							str += duration.hours() + 'h';
-						}
+  						if (duration.hours() > 0) {//} || str.length > 0) {
+  							str += duration.hours() + 'h';
+  						}
 
-						if (duration.minutes() > 0) {
-							str += duration.minutes() + 'm';
-						}
-						else if (str.length == 1) {
-							str = 'now';
-						}
+  						if (duration.minutes() > 0) {
+  							str += duration.minutes() + 'm';
+  						}
+  						else if (str.length == 1) {
+                str = 'now';
+  						}
+            }
 
 						return  str;
 					})
@@ -559,7 +564,7 @@ app.controller('RoundController', [ '$scope', '$interval', 'DataServiceFactory',
 
 app.directive('paleoRounds', [function() {
   var
-    margin = {top: 20, right: 175, bottom: 0, left: 20},
+    margin = {top: 45, right: 175, bottom: 0, left: 20},
   	width = 175,
   	height = 90;
 
@@ -619,14 +624,7 @@ app.directive('paleoRounds', [function() {
 
         xAxis
           .tickFormat(function(d) {
-            var res = $scope.nbDays - d;
-
-            if (res == 1) {
-              return 'Today';
-            }
-            else {
-              return -res + 1;
-            }
+            return moment().subtract($scope.nbDays - d - 1, 'days').date() + '.7.15';
           })
           .ticks($scope.nbDays);
       }
@@ -641,9 +639,11 @@ app.directive('paleoRounds', [function() {
        		.range([0, width]);
 
        	svg.append("g")
-       		.attr("class", "x axis")
+       		.attr("class", "x axis round-axis")
        		.attr("transform", "translate(0," + 0 + ")")
-       		.call(xAxis);
+       		.call(xAxis)
+          .selectAll('text')
+          .attr("transform", "rotate(-45), translate(25, 3)");
       }
 
       $scope.$watch('carAggregations', function(carAggregations) {
@@ -785,8 +785,6 @@ app.controller('FactsController', [ '$scope', '$interval', 'DataServiceFactory',
 		dataService
 			.getFacts(startDate, endDate)
 			.then(function (data) {
-        console.log(data);
-
         data.facts.entries.maxDay = normalizeData(data.facts.entries.maxDay, formatDayOut);
         data.facts.entries.minDay = normalizeData(data.facts.entries.minDay, formatDayOut);
         data.facts.entries.maxHour = normalizeData(data.facts.entries.maxHour, formatHourOut, hourSuffix);
