@@ -385,7 +385,7 @@ module.exports = {
             var result = {};
 
             for (var i = 0; i <= nbDays; i++) {
-              result[i] = { day: moment(startDate).add(i, 'days').format(STD_FORMAT_DATE), values: [] };
+              result[i] = { day: memo.entries[i].day, values: [] };
 
               for (var j = 0; j < 24; j++) {
                 var total = memo.entries[i].values[j] - memo.exits[i].values[j];
