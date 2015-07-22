@@ -308,7 +308,7 @@ module.exports = {
         promise = promise
           .then(function (memo) {
             return analyticsProvider
-              .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'daily', startDate)
+              .getMetrics('ch.heigvd.iflux.paleo2015.entries', 'daily', startDate, endDate)
               .then(function(entries) {
                 var result = {};
 
@@ -345,7 +345,7 @@ module.exports = {
           })
           .then(function (memo) {
             return analyticsProvider
-              .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'daily', startDate)
+              .getMetrics('ch.heigvd.iflux.paleo2015.exits', 'daily', startDate, endDate)
               .then(function(exits) {
                 var result = {};
 
