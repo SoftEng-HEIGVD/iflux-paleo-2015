@@ -8,7 +8,6 @@ var
 
 var analyticsProvider = new AnalyticsProvider(config);
 
-// TODO: Remove the following
 function random (low, high) {
 	return Math.random() * (high - low) + low;
 }
@@ -17,12 +16,9 @@ function randomInt (low, high) {
 	return Math.floor(Math.random() * (high - low) + low);
 }
 
-// TODO: NOT USED YET!
 function randomDate(start, end) {
 	return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
-// TODO: End of the following
-
 var STD_FORMAT_DATE = 'DD.MM.YY';
 
 var scales = [{
@@ -62,17 +58,14 @@ module.exports = {
     var startDate;
 
     if (minutes == 'paleo') {
-      endDate = moment('2015-07-26').hour(23).minute(59).second(59).millisecond(999);
-      startDate = moment(endDate).subtract(6, 'days').hour(0).minute(0).second(0).millisecond(0);
+      endDate = moment('2015-07-26').tz(analyticsProvider.timeZone).endOf('day');
+      startDate = moment(endDate).subtract(6, 'days').startOf('day');
 
     }
     else {
-      endDate = moment();
+      endDate = moment().tz(analyticsProvider.timeZone);
       startDate = moment(endDate).subtract(minutes, 'minutes');
     }
-
-    endDate = endDate.tz('UTC');
-    startDate = startDate.tz('UTC');
 
 		var promise = Promise
 			.resolve({
@@ -263,11 +256,8 @@ module.exports = {
       if (type != 'total') {
         promise = promise
           .then(function (result) {
-            var endDate = moment().hour(23).minute(59).second(59).millisecond(999);
-            var startDate = moment(endDate).hour(0).minute(0).second(0).millisecond(0).subtract(6, 'days');
-
-            endDate = endDate.tz('UTC');
-            startDate = startDate.tz('UTC');
+            var endDate = moment().tz(analyticsProvider.timeZone).endOf('day');
+            var startDate = moment(endDate).startOf('day').subtract(6, 'days');
 
             var nbDays = endDate.diff(startDate, 'days');
 
@@ -284,8 +274,8 @@ module.exports = {
                 }
 
                 _.each(metrics, function (metric) {
-                  var date = moment(metric.header.startDate);
-                  var idx = moment(date).hour(0).minute(0).second(0).millisecond(0).diff(startDate, 'days');
+                  var date = moment(metric.header.startDate).startOf('day');
+                  var idx = moment(date).diff(moment(startDate), 'days');
 
                   for (var i = 0; i < 24; i++) {
                     if (metric.hourly && metric.hourly[i]) {
@@ -303,8 +293,8 @@ module.exports = {
           });
       }
       else {
-        var endDate = moment().hour(23).minute(59).second(59).millisecond(999).tz('UTC');
-        var startDate = moment(endDate).subtract(6, 'days').hour(0).minute(0).second(0).millisecond(0);
+        var endDate = moment().tz(analyticsProvider.timeZone).endOf('day');
+        var startDate = moment(endDate).subtract(6, 'days').startOf('day');
         var nbDays = endDate.diff(startDate, 'days');
 
         promise = promise
@@ -322,8 +312,8 @@ module.exports = {
                 }
 
                 _.each(entries, function (metric) {
-                  var date = moment(metric.header.startDate);
-                  var idx = date.diff(startDate, 'days');
+                  var date = moment(metric.header.startDate).startOf('day');
+                  var idx = moment(date).diff(moment(startDate), 'days');
 
                   for (var i = 0; i < 24; i++) {
                     if (metric.hourly && metric.hourly[i]) {
@@ -351,8 +341,8 @@ module.exports = {
                 }
 
                 _.each(exits, function (metric) {
-                  var date = moment(metric.header.startDate);
-                  var idx = date.diff(startDate, 'days');
+                  var date = moment(metric.header.startDate).startOf('day');
+                  var idx = moment(date).diff(moment(startDate), 'days');
 
                   for (var i = 0; i < 24; i++) {
                     if (metric.hourly && metric.hourly[i]) {
@@ -416,8 +406,8 @@ module.exports = {
   },
 
   getDaysAggregation: function(startDate, endDate, randomData) {
-    var startDateMoment = moment(startDate, 'YYYY-MM-DD').hour(0).minute(0).second(0).millisecond(0).tz('UTC');
-    var endDateMoment = moment(endDate, 'YYYY-MM-DD').hour(23).minute(59).second(59).millisecond(999).tz('UTC');
+    var startDateMoment = moment(startDate, 'YYYY-MM-DD').tz(analyticsProvider.timeZone).startOf('day');
+    var endDateMoment = moment(endDate, 'YYYY-MM-DD').tz(analyticsProvider.timeZone).endOf('day');
     var diffDurationInDays = endDateMoment.diff(startDateMoment, 'days');
 
     var promise = Promise.resolve();
@@ -540,8 +530,8 @@ module.exports = {
   },
 
   getFacts: function(start, end, randomData) {
-    var startDate = moment(start).hour(0).minute(0).second(0).millisecond(0).tz('UTC');
-    var endDate = moment(end).hour(23).minute(59).second(59).millisecond(999).tz('UTC');
+    var startDate = moment(start).tz(analyticsProvider.timeZone).startOf('day');
+    var endDate = moment(end).tz(analyticsProvider.timeZone).endOf('day');
 
     var promise = Promise.resolve();
 
