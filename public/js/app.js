@@ -862,8 +862,6 @@ app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interv
   };
 
   var fn = function() {
-    console.log('generate data');
-
     if (randomInt(0, 100) <= 25) {
  		  dataService.generateData();
     }
