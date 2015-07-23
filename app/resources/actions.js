@@ -4,7 +4,7 @@ var
 	router = express.Router(),
 	config = require('../../config/config'),
   dataService = require('../services/dataService'),
-	Measure = require('../services/analytics').Measure;;
+	Measure = require('../services/analytics').Measure;
 
 module.exports = function (app) {
 	router.app = app;

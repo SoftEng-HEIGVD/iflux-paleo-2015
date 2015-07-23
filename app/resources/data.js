@@ -77,3 +77,29 @@ router.route('/facts')
 				return next(err);
 			})
 	});
+
+router.route('/random')
+  .post(function(req, res, next) {
+    if (req.body.add) {
+      return dataService
+        .addGeneratedData(req.body)
+        .then(function () {
+          return res.status(200).json({message: 'data generation added.'}).end();
+        });
+    }
+    else {
+      return dataService
+        .generateData(req.body)
+        .then(function () {
+          return res.status(200).json({message: 'data generated.'}).end();
+        });
+    }
+  })
+
+  .delete(function(req, res, next) {
+    return dataService
+      .dropData()
+      .then(function() {
+        return res.status(200).json({ message: 'data erased.' }).end();
+      });
+  });

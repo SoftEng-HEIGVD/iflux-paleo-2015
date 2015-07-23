@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+  s = require('underscore.string'),
 	moment = require('moment-timezone'),
 	pmongo = require('promised-mongo'),
 	Promise = require('bluebird'),
@@ -41,6 +42,22 @@ var AnalyticsProvider = function (options) {
   }
 };
 
+AnalyticsProvider.prototype.dropCollectionByPrefix = function(prefix) {
+  return db
+	  .getCollectionNames()
+	  .then(function(collectionNames) {
+		  if (collectionNames.length > 0) {
+			  return Promise
+				  .resolve(collectionNames)
+				  .each(function (collectionName) {
+					  if (s.startsWith(collectionName, 'metrics.' + prefix)) {
+              console.log('Try to delete collection: %s', collectionName);
+              return db.collection(collectionName).drop();
+            }
+				  });
+		  }
+	  })
+};
 
 AnalyticsProvider.prototype.getMetricsDescriptions = function() {
   var results = [];

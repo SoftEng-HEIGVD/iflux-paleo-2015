@@ -20,10 +20,28 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', '$rootScope', functi
   }
 
   function enrichUrl(url) {
-    return CONTEXT_ROOT +  url + ($rootScope.mode == 'real' ? '' : '&randomData=true');
+    return CONTEXT_ROOT +  url + ($rootScope.mode == 'real' ? '' : (url.indexOf('?') > 0 ? '&' : '?') + 'randomData=true' );
+  }
+
+  function randomInt (low, high) {
+  	return Math.floor(Math.random() * (high - low) + low);
   }
 
 	return {
+    generateData: function() {
+      var min = randomInt(1, 5);
+
+      return $http({
+        url:  CONTEXT_ROOT + '/data/random',
+        method: 'POST',
+        data: {
+          add: true,
+          nbCarsMin: min,
+          nbCarsMax: randomInt(min, 10)
+        }
+      });
+    },
+
 		getEvolution: function (lastMinutes) {
 			return $http({
 				url: enrichUrl('/data/evolution?minutes=' + lastMinutes)
@@ -804,15 +822,6 @@ app.controller('FactsController', [ '$scope', '$interval', 'DataServiceFactory',
 			});
 	};
 
-	//$scope.getClass = function(type) {
-	//	if ($scope.type == type) {
-	//		return 'btn-success';
-	//	}
-	//	else {
-	//		return 'btn-primary';
-	//	}
-	//};
-
 	$rootScope.timers.push($interval(fn, 60000));
 
 	fn();
@@ -830,7 +839,7 @@ app.directive('paleoFacts', [ function() {
 	};
 }]);
 
-app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interval', function($scope, $rootScope, $state, $interval) {
+app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interval', 'DataServiceFactory', function($scope, $rootScope, $state, $interval, dataService) {
 	$scope.getClass = function(mode) {
 		if ($rootScope.mode == mode) {
 			return 'btn-success';
@@ -849,8 +858,17 @@ app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interv
 
     $rootScope.timers = [];
 
-    $state.go('main', {}, {reload: true});
+    $state.go('main', {}, { reload: true });
   };
+
+  var fn = function() {
+    console.log('generate data');
+ 		dataService.generateData();
+ 	};
+
+  if ($rootScope.mode == 'random') {
+ 	  $rootScope.timers.push($interval(fn, 15000));
+  }
 }]);
 
 app.directive('paleoSummary', [ function() {
