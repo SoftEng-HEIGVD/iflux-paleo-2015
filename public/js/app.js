@@ -13,6 +13,10 @@ app.config(function($stateProvider, $urlRouterProvider, $locationProvider) {
 	;
 });
 
+function randomInt (low, high) {
+	return Math.floor(Math.random() * (high - low) + low);
+}
+
 app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', '$rootScope', function($http, CONTEXT_ROOT, $rootScope) {
   if (_.isUndefined($rootScope.mode)) {
     $rootScope.mode = 'real';
@@ -23,13 +27,9 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', '$rootScope', functi
     return CONTEXT_ROOT +  url + ($rootScope.mode == 'real' ? '' : (url.indexOf('?') > 0 ? '&' : '?') + 'randomData=true' );
   }
 
-  function randomInt (low, high) {
-  	return Math.floor(Math.random() * (high - low) + low);
-  }
-
 	return {
     generateData: function() {
-      var min = randomInt(1, 5);
+      var min = randomInt(0, 3);
 
       return $http({
         url:  CONTEXT_ROOT + '/data/random',
@@ -37,7 +37,7 @@ app.factory('DataServiceFactory', ['$http', 'CONTEXT_ROOT', '$rootScope', functi
         data: {
           add: true,
           nbCarsMin: min,
-          nbCarsMax: randomInt(min, 10)
+          nbCarsMax: randomInt(min, 5)
         }
       });
     },
@@ -863,7 +863,10 @@ app.controller('SummaryController', [ '$scope', '$rootScope', '$state', '$interv
 
   var fn = function() {
     console.log('generate data');
- 		dataService.generateData();
+
+    if (randomInt(0, 100) <= 25) {
+ 		  dataService.generateData();
+    }
  	};
 
   if ($rootScope.mode == 'random') {
