@@ -92,7 +92,7 @@ var config = {
 			randomData: false
 		},
 		port: 3000,
-		db: 'mongodb://' + process.env.MONGO_PORT_27017_TCP_ADDR + ':' + process.env.MONGO_PORT_27017_TCP_PORT + '/iflux-paleo-docker'
+		db: 'mongodb://' + process.env.COMPOSE_PROJECT_NAME + '_mongodb:27017/iflux-paleo-docker'
 	}
 };
 
